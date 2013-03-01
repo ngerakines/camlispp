@@ -24,7 +24,7 @@ namespace blobserver {
 
 	void BlobIndex::addBlob(std::vector<char> bytes) {
 		boost::mutex::scoped_lock lock(mutex_);
-		std::string sbuffer = std::string(bytes.begin(), bytes.end());
+		auto sbuffer = std::string(bytes.begin(), bytes.end());
 		uint32 hash = CityHash32(sbuffer.c_str(), sbuffer.size());
 		LOG_INFO("hash " << hash << std::endl);
 		std::string file_name = boost::lexical_cast<std::string>(hash);
