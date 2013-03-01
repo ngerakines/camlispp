@@ -6,7 +6,6 @@
 
 #include <boost/thread/mutex.hpp>
 
-#include "logger.hpp"
 #include "Blob.hpp"
 #include "Config.hpp"
 

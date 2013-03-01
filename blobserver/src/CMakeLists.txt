@@ -21,5 +21,5 @@ ADD_LIBRARY(json_spirit_lib STATIC ${JSON_SPIRIT_CC} ${JSON_SPIRIT_H})
 # -Wall -Wextra
 add_definitions(-g -gstabs+)
 
-add_executable(blobserver blobserver.cpp Config.cpp Blob.cpp BlobIndex.cpp connection.cpp mime_types.cpp request_handler.cpp server.cpp reply.cpp request_parser.cpp request.hpp header.hpp boost-multipart-form.cpp)
+add_executable(blobserver blobserver.cpp Config.cpp Blob.cpp BlobIndex.cpp connection.cpp mime_types.cpp request_handler.cpp server.cpp reply.cpp request_parser.cpp request.hpp header.hpp boost-multipart-form.cpp header.cpp)
 TARGET_LINK_LIBRARIES(blobserver ${BOOST_SYS} ${BOOST_FS} ${BOOST_THR} ${BOOST_PO} pthread cityhash_lib json_spirit_lib)

@@ -101,10 +101,9 @@ namespace http {
 				return;
 			}
 
-#if defined DUMP_BLOB
+#if defined ENABLE_DUMP
 			LOG_INFO(DUMP_BLOB(*foundBlob) << std::endl);
 #endif
-
 			std::string full_path = doc_root_ + foundBlob->filePath();
 			LOG_INFO("loading file from path " << full_path << std::endl);
 			std::ifstream is(full_path.c_str(), std::ios::in | std::ios::binary);
@@ -142,54 +141,33 @@ namespace http {
 		void request_handler::handle_put(std::string request_path, const request& req, reply& rep) {
 			LOG_INFO("handle_put called" << std::endl);
 			std::string body = req.content;
-
 			std::string content_type = get_header(req.headers, "Content-Type");
+
 			if (content_type == "") {
 				rep = reply::stock_reply(reply::bad_request);
 				return;
 			}
+
 			blobserver::Header *header = parse_boundry_header(content_type);
-
 			LOG_INFO(*(header) << std::endl);
-
 			boost::optional<std::string> boundary = header->attributeValue("boundary");
+
 			if (boundary) {
 				LOG_INFO("boundary = '" << *boundary << "'" << std::endl);
-
 				LOG_INFO("body" << std::endl << "******" << std::endl << body << "******" << std::endl);
-
 				MultiPartFormData mpfd(*boundary, body);
 				LOG_INFO(mpfd << std::endl);
-
-				BOOST_FOREACH(Part *part, mpfd.parts()) {
+				BOOST_FOREACH(Part * part, mpfd.parts()) {
 					std::vector<char> payload = part->payload();
+
 					if (payload.size() > 0) {
 						LOG_INFO("payload is greater than 0" << std::endl);
 						bi_->addBlob(payload);
 					}
 				}
-
 			}
 
 			delete header;
-			// MultiPartFormData mpfd("randomboundaryXYZ", body);
-			/*
-			body.insert(0, "\r\n\r\n");
-			body.insert(0, content_type);
-			body.insert(0, "Content-type: ");
-			LOG_INFO("body: " << std::endl << body << std::endl);
-			char* chr = strdup(body.c_str());
-			MIMEParser *p = new MIMEParser();
-			int res = p->ParseMessage(chr, strlen(chr));
-			LOG_INFO("parse result: " << res << std::endl);
-
-			if (res == 0) {
-				int count = p->GetNumberOfParts();
-				BOOST_FOREACH(MIMEPart * part, p->parts()) {
-					LOG_INFO("part boundry: " << part->GetBoundary() << ", length: " << part->GetSectionSize() << std::endl);
-					LOG_INFO("content: " << std::endl << part->GetContent() << std::endl << std::endl);
-				}
-			} */
 			rep.status = reply::ok;
 		}
 
@@ -203,6 +181,7 @@ namespace http {
 				header_tokens_map.clear();
 				// return boost::scoped_ptr<Header>(new Header("Content-Type", std::map<std::string, std::string>()));
 			}
+
 			return new blobserver::Header("Content-Type", header_tokens_map);
 		}
 

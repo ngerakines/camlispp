@@ -1,7 +1,6 @@
-#include <string>
-
 #include "BlobIndex.hpp"
 
+#include <string>
 #include <fstream>
 #include <iostream>
 #include <boost/filesystem/path.hpp>
@@ -11,6 +10,8 @@
 #include <boost/filesystem.hpp>
 
 #include "city.h"
+
+#include "logger.hpp"
 
 namespace blobserver {
 
@@ -55,7 +56,9 @@ namespace blobserver {
 			LOG_INFO("hash type = " << hash_type << " ; hash = " << encoded_hash << std::endl);
 			BOOST_FOREACH(Blob * blob, blobs_) {
 				if (blob->is_match(hash_type, encoded_hash)) {
+#if defined ENABLE_DUMP
 					LOG_INFO(DUMP_BLOB(*blob) << std::endl);
+#endif
 					return blob;
 
 				} else {
