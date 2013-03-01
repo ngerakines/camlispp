@@ -4,47 +4,38 @@
 #include <string>
 #include <vector>
 #include <iostream>
-#include <sstream>
 
 #include <boost/container/map.hpp>
 
+#include "config.h"
 #include "city.h"
+
+#if defined ENABLE_DUMP
+#define DUMP_BLOB(x) x
+#else
+#define DUMP_BLOB(x) ""
+#endif
 
 namespace blobserver {
 
-	class Blob {
+	class Blob final {
 		public:
-			Blob(int base_hash, std::string filePath) : base_hash_(base_hash), filePath_(filePath), size_(0) { }
+			Blob(int base_hash, std::string filePath);
 
-			std::string filePath() {
-				return filePath_;
-			}
+			std::string filePath() ;
 
-			int size() {
-				return size_;
-			}
-			void size(int size) {
-				size_ = size;
-			}
+			int size();
+			void size(int size);
 
-			int base_hash() {
-				return base_hash_;
-			}
+			int base_hash();
 
-			std::string ref() {
-				std::stringstream ss (std::stringstream::in | std::stringstream::out);
-				ss << "ch32-" << base_hash_;
-				return ss.str();
-			}
+			std::string ref();
 
 			bool is_match(std::string hash_type, std::string encoded_hash);
 
-			virtual std::ostream& dump(std::ostream& o) const {
-				std::stringstream ss;
-				ss << "Blob{ base_hash=" << base_hash_ << " filePath='" << filePath_ << "' size=" << size_ << "}";
-				return o << ss.str();
-			}
-
+#if defined ENABLE_DUMP
+			std::ostream& dump(std::ostream& o) const;
+#endif
 		private:
 			uint32 base_hash_;
 			std::string filePath_;
@@ -54,6 +45,8 @@ namespace blobserver {
 
 }
 
+#if defined ENABLE_DUMP
 std::ostream& operator<<(std::ostream& o, const blobserver::Blob& b);
+#endif
 
 #endif /* __BLOBSERVER_BLOB_H__ */

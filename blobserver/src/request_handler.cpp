@@ -101,7 +101,9 @@ namespace http {
 				return;
 			}
 
-			LOG_INFO(*foundBlob << std::endl);
+#if defined DUMP_BLOB
+			LOG_INFO(DUMP_BLOB(*foundBlob) << std::endl);
+#endif
 
 			std::string full_path = doc_root_ + foundBlob->filePath();
 			LOG_INFO("loading file from path " << full_path << std::endl);

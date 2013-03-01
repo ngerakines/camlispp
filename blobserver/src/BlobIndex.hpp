@@ -4,7 +4,6 @@
 #include <string>
 #include <vector>
 
-#include <boost/filesystem/path.hpp>
 #include <boost/thread/mutex.hpp>
 
 #include "logger.hpp"
@@ -21,15 +20,9 @@ namespace blobserver {
 
 			void addBlob(std::vector<char> bytes);
 
-			bool empty() {
-				boost::mutex::scoped_lock lock(mutex_);
-				return blobs_.empty();
-			}
+			bool empty();
 
-			int size() {
-				boost::mutex::scoped_lock lock(mutex_);
-				return (int) blobs_.size();
-			}
+			int size();
 
 			Blob* get(std::string hash);
 

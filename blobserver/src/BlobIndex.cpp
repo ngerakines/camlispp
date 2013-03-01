@@ -4,6 +4,7 @@
 
 #include <fstream>
 #include <iostream>
+#include <boost/filesystem/path.hpp>
 #include <boost/algorithm/string/predicate.hpp>
 #include <boost/foreach.hpp>
 #include <boost/lexical_cast.hpp>
@@ -19,6 +20,7 @@ namespace blobserver {
 		for (int i = 0; i < (int) blobs_.size(); i++) {
 			delete blobs_[i];
 		}
+
 		blobs_.clear();
 	}
 
@@ -30,8 +32,8 @@ namespace blobserver {
 		std::string file_name = boost::lexical_cast<std::string>(hash);
 		Blob *b = new Blob(hash, file_name);
 		std::string full_path = config_->directory() + b ->filePath();
-
 		LOG_INFO("Checking path: " << full_path << std::endl);
+
 		if (!boost::filesystem::exists(full_path)) {
 			LOG_INFO("Blob does not exist on disk, writing to " << full_path << std::endl);
 			std::ofstream fs(full_path.c_str(), std::ofstream::binary);
@@ -53,14 +55,25 @@ namespace blobserver {
 			LOG_INFO("hash type = " << hash_type << " ; hash = " << encoded_hash << std::endl);
 			BOOST_FOREACH(Blob * blob, blobs_) {
 				if (blob->is_match(hash_type, encoded_hash)) {
-					LOG_INFO(*blob << std::endl);
+					LOG_INFO(DUMP_BLOB(*blob) << std::endl);
 					return blob;
+
 				} else {
 				}
 			}
 		}
 
 		return NULL;
+	}
+
+	bool BlobIndex::empty() {
+		boost::mutex::scoped_lock lock(mutex_);
+		return blobs_.empty();
+	}
+
+	int BlobIndex::size() {
+		boost::mutex::scoped_lock lock(mutex_);
+		return (int) blobs_.size();
 	}
 
 }
