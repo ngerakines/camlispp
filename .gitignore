@@ -18,3 +18,7 @@ CMakeFiles
 Makefile
 cmake_install.cmake
 Makefile
+
+# generated project files
+blobserver/src/config.h
+
