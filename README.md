@@ -32,3 +32,13 @@ This project was kicked off to get me back into the world of c++. I've been foll
 1. Support sharding and conditional blob routing
 1. Support large files
 1. Support daemon configuration files
+
+# Errata
+
+alias style='astyle -A2 --indent=tab -C -N -Y -f -F -xd -j -J -p -H -n'
+
+# License
+
+Copyright (c) 2013 Nick Gerakines <nick@gerakines.net>
+
+This project and its contents are open source under the MIT license.
