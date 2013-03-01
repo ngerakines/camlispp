@@ -1,0 +1,320 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_project_file>
+   <FileVersion major="1" minor="6" />
+   <Project>
+      <Option title="blobserver" />
+      <Option makefile_is_custom="1" />
+      <Option compiler="gcc" />
+      <Option virtualFolders="CMake Files\;CMake Files\src\;" />
+      <Build>
+      <Target title="all">
+         <Option working_dir="/home/ngerakines/projects/blobserver" />
+         <Option type="4" />
+         <MakeCommands>
+            <Build command="/usr/bin/gmake -f &quot;/home/ngerakines/projects/blobserver/Makefile&quot;  VERBOSE=1 all" />
+            <CompileFile command="/usr/bin/gmake -f &quot;/home/ngerakines/projects/blobserver/Makefile&quot;  VERBOSE=1 &quot;$file&quot;" />
+            <Clean command="/usr/bin/gmake -f &quot;/home/ngerakines/projects/blobserver/Makefile&quot;  VERBOSE=1 clean" />
+            <DistClean command="/usr/bin/gmake -f &quot;/home/ngerakines/projects/blobserver/Makefile&quot;  VERBOSE=1 clean" />
+         </MakeCommands>
+      </Target>
+      <Target title="rebuild_cache">
+         <Option working_dir="/home/ngerakines/projects/blobserver" />
+         <Option type="4" />
+         <MakeCommands>
+            <Build command="/usr/bin/gmake -f &quot;/home/ngerakines/projects/blobserver/Makefile&quot;  VERBOSE=1 rebuild_cache" />
+            <CompileFile command="/usr/bin/gmake -f &quot;/home/ngerakines/projects/blobserver/Makefile&quot;  VERBOSE=1 &quot;$file&quot;" />
+            <Clean command="/usr/bin/gmake -f &quot;/home/ngerakines/projects/blobserver/Makefile&quot;  VERBOSE=1 clean" />
+            <DistClean command="/usr/bin/gmake -f &quot;/home/ngerakines/projects/blobserver/Makefile&quot;  VERBOSE=1 clean" />
+         </MakeCommands>
+      </Target>
+      <Target title="blobserver">
+         <Option output="/home/ngerakines/projects/blobserver/src/blobserver" prefix_auto="0" extension_auto="0" />
+         <Option working_dir="/home/ngerakines/projects/blobserver/src" />
+         <Option object_output="./" />
+         <Option type="1" />
+         <Option compiler="gcc" />
+         <Compiler>
+            <Add directory="/home/ngerakines/projects/blobserver/src/." />
+            <Add directory="/home/ngerakines/projects/blobserver/src/../3rd/cityhash-1.1.0" />
+            <Add directory="/home/ngerakines/projects/blobserver/src/../3rd/json" />
+            <Add directory="/home/ngerakines/projects/blobserver/src/../3rd/multipartparser" />
+            <Add directory="/usr/include" />
+            <Add directory="/usr/lib/gcc/x86_64-redhat-linux/4.7.2/../../../../include/c++/4.7.2" />
+            <Add directory="/usr/lib/gcc/x86_64-redhat-linux/4.7.2/../../../../include/c++/4.7.2/backward" />
+            <Add directory="/usr/lib/gcc/x86_64-redhat-linux/4.7.2/../../../../include/c++/4.7.2/x86_64-redhat-linux" />
+            <Add directory="/usr/lib/gcc/x86_64-redhat-linux/4.7.2/include" />
+            <Add directory="/usr/local/include" />
+         </Compiler>
+         <MakeCommands>
+            <Build command="/usr/bin/gmake -f &quot;/home/ngerakines/projects/blobserver/src/Makefile&quot;  VERBOSE=1 blobserver" />
+            <CompileFile command="/usr/bin/gmake -f &quot;/home/ngerakines/projects/blobserver/src/Makefile&quot;  VERBOSE=1 &quot;$file&quot;" />
+            <Clean command="/usr/bin/gmake -f &quot;/home/ngerakines/projects/blobserver/src/Makefile&quot;  VERBOSE=1 clean" />
+            <DistClean command="/usr/bin/gmake -f &quot;/home/ngerakines/projects/blobserver/src/Makefile&quot;  VERBOSE=1 clean" />
+         </MakeCommands>
+      </Target>
+      <Target title="blobserver/fast">
+         <Option output="/home/ngerakines/projects/blobserver/src/blobserver" prefix_auto="0" extension_auto="0" />
+         <Option working_dir="/home/ngerakines/projects/blobserver/src" />
+         <Option object_output="./" />
+         <Option type="1" />
+         <Option compiler="gcc" />
+         <Compiler>
+            <Add directory="/home/ngerakines/projects/blobserver/src/." />
+            <Add directory="/home/ngerakines/projects/blobserver/src/../3rd/cityhash-1.1.0" />
+            <Add directory="/home/ngerakines/projects/blobserver/src/../3rd/json" />
+            <Add directory="/home/ngerakines/projects/blobserver/src/../3rd/multipartparser" />
+            <Add directory="/usr/include" />
+            <Add directory="/usr/lib/gcc/x86_64-redhat-linux/4.7.2/../../../../include/c++/4.7.2" />
+            <Add directory="/usr/lib/gcc/x86_64-redhat-linux/4.7.2/../../../../include/c++/4.7.2/backward" />
+            <Add directory="/usr/lib/gcc/x86_64-redhat-linux/4.7.2/../../../../include/c++/4.7.2/x86_64-redhat-linux" />
+            <Add directory="/usr/lib/gcc/x86_64-redhat-linux/4.7.2/include" />
+            <Add directory="/usr/local/include" />
+         </Compiler>
+         <MakeCommands>
+            <Build command="/usr/bin/gmake -f &quot;/home/ngerakines/projects/blobserver/src/Makefile&quot;  VERBOSE=1 blobserver/fast" />
+            <CompileFile command="/usr/bin/gmake -f &quot;/home/ngerakines/projects/blobserver/src/Makefile&quot;  VERBOSE=1 &quot;$file&quot;" />
+            <Clean command="/usr/bin/gmake -f &quot;/home/ngerakines/projects/blobserver/src/Makefile&quot;  VERBOSE=1 clean" />
+            <DistClean command="/usr/bin/gmake -f &quot;/home/ngerakines/projects/blobserver/src/Makefile&quot;  VERBOSE=1 clean" />
+         </MakeCommands>
+      </Target>
+      <Target title="cityhash_lib">
+         <Option output="/home/ngerakines/projects/blobserver/src/libcityhash_lib.a" prefix_auto="0" extension_auto="0" />
+         <Option working_dir="/home/ngerakines/projects/blobserver/src" />
+         <Option object_output="./" />
+         <Option type="2" />
+         <Option compiler="gcc" />
+         <Compiler>
+            <Add directory="/home/ngerakines/projects/blobserver/src/." />
+            <Add directory="/home/ngerakines/projects/blobserver/src/../3rd/cityhash-1.1.0" />
+            <Add directory="/home/ngerakines/projects/blobserver/src/../3rd/json" />
+            <Add directory="/home/ngerakines/projects/blobserver/src/../3rd/multipartparser" />
+            <Add directory="/usr/include" />
+            <Add directory="/usr/lib/gcc/x86_64-redhat-linux/4.7.2/../../../../include/c++/4.7.2" />
+            <Add directory="/usr/lib/gcc/x86_64-redhat-linux/4.7.2/../../../../include/c++/4.7.2/backward" />
+            <Add directory="/usr/lib/gcc/x86_64-redhat-linux/4.7.2/../../../../include/c++/4.7.2/x86_64-redhat-linux" />
+            <Add directory="/usr/lib/gcc/x86_64-redhat-linux/4.7.2/include" />
+            <Add directory="/usr/local/include" />
+         </Compiler>
+         <MakeCommands>
+            <Build command="/usr/bin/gmake -f &quot;/home/ngerakines/projects/blobserver/src/Makefile&quot;  VERBOSE=1 cityhash_lib" />
+            <CompileFile command="/usr/bin/gmake -f &quot;/home/ngerakines/projects/blobserver/src/Makefile&quot;  VERBOSE=1 &quot;$file&quot;" />
+            <Clean command="/usr/bin/gmake -f &quot;/home/ngerakines/projects/blobserver/src/Makefile&quot;  VERBOSE=1 clean" />
+            <DistClean command="/usr/bin/gmake -f &quot;/home/ngerakines/projects/blobserver/src/Makefile&quot;  VERBOSE=1 clean" />
+         </MakeCommands>
+      </Target>
+      <Target title="cityhash_lib/fast">
+         <Option output="/home/ngerakines/projects/blobserver/src/libcityhash_lib.a" prefix_auto="0" extension_auto="0" />
+         <Option working_dir="/home/ngerakines/projects/blobserver/src" />
+         <Option object_output="./" />
+         <Option type="2" />
+         <Option compiler="gcc" />
+         <Compiler>
+            <Add directory="/home/ngerakines/projects/blobserver/src/." />
+            <Add directory="/home/ngerakines/projects/blobserver/src/../3rd/cityhash-1.1.0" />
+            <Add directory="/home/ngerakines/projects/blobserver/src/../3rd/json" />
+            <Add directory="/home/ngerakines/projects/blobserver/src/../3rd/multipartparser" />
+            <Add directory="/usr/include" />
+            <Add directory="/usr/lib/gcc/x86_64-redhat-linux/4.7.2/../../../../include/c++/4.7.2" />
+            <Add directory="/usr/lib/gcc/x86_64-redhat-linux/4.7.2/../../../../include/c++/4.7.2/backward" />
+            <Add directory="/usr/lib/gcc/x86_64-redhat-linux/4.7.2/../../../../include/c++/4.7.2/x86_64-redhat-linux" />
+            <Add directory="/usr/lib/gcc/x86_64-redhat-linux/4.7.2/include" />
+            <Add directory="/usr/local/include" />
+         </Compiler>
+         <MakeCommands>
+            <Build command="/usr/bin/gmake -f &quot;/home/ngerakines/projects/blobserver/src/Makefile&quot;  VERBOSE=1 cityhash_lib/fast" />
+            <CompileFile command="/usr/bin/gmake -f &quot;/home/ngerakines/projects/blobserver/src/Makefile&quot;  VERBOSE=1 &quot;$file&quot;" />
+            <Clean command="/usr/bin/gmake -f &quot;/home/ngerakines/projects/blobserver/src/Makefile&quot;  VERBOSE=1 clean" />
+            <DistClean command="/usr/bin/gmake -f &quot;/home/ngerakines/projects/blobserver/src/Makefile&quot;  VERBOSE=1 clean" />
+         </MakeCommands>
+      </Target>
+      <Target title="json_spirit_lib">
+         <Option output="/home/ngerakines/projects/blobserver/src/libjson_spirit_lib.a" prefix_auto="0" extension_auto="0" />
+         <Option working_dir="/home/ngerakines/projects/blobserver/src" />
+         <Option object_output="./" />
+         <Option type="2" />
+         <Option compiler="gcc" />
+         <Compiler>
+            <Add directory="/home/ngerakines/projects/blobserver/src/." />
+            <Add directory="/home/ngerakines/projects/blobserver/src/../3rd/cityhash-1.1.0" />
+            <Add directory="/home/ngerakines/projects/blobserver/src/../3rd/json" />
+            <Add directory="/home/ngerakines/projects/blobserver/src/../3rd/multipartparser" />
+            <Add directory="/usr/include" />
+            <Add directory="/usr/lib/gcc/x86_64-redhat-linux/4.7.2/../../../../include/c++/4.7.2" />
+            <Add directory="/usr/lib/gcc/x86_64-redhat-linux/4.7.2/../../../../include/c++/4.7.2/backward" />
+            <Add directory="/usr/lib/gcc/x86_64-redhat-linux/4.7.2/../../../../include/c++/4.7.2/x86_64-redhat-linux" />
+            <Add directory="/usr/lib/gcc/x86_64-redhat-linux/4.7.2/include" />
+            <Add directory="/usr/local/include" />
+         </Compiler>
+         <MakeCommands>
+            <Build command="/usr/bin/gmake -f &quot;/home/ngerakines/projects/blobserver/src/Makefile&quot;  VERBOSE=1 json_spirit_lib" />
+            <CompileFile command="/usr/bin/gmake -f &quot;/home/ngerakines/projects/blobserver/src/Makefile&quot;  VERBOSE=1 &quot;$file&quot;" />
+            <Clean command="/usr/bin/gmake -f &quot;/home/ngerakines/projects/blobserver/src/Makefile&quot;  VERBOSE=1 clean" />
+            <DistClean command="/usr/bin/gmake -f &quot;/home/ngerakines/projects/blobserver/src/Makefile&quot;  VERBOSE=1 clean" />
+         </MakeCommands>
+      </Target>
+      <Target title="json_spirit_lib/fast">
+         <Option output="/home/ngerakines/projects/blobserver/src/libjson_spirit_lib.a" prefix_auto="0" extension_auto="0" />
+         <Option working_dir="/home/ngerakines/projects/blobserver/src" />
+         <Option object_output="./" />
+         <Option type="2" />
+         <Option compiler="gcc" />
+         <Compiler>
+            <Add directory="/home/ngerakines/projects/blobserver/src/." />
+            <Add directory="/home/ngerakines/projects/blobserver/src/../3rd/cityhash-1.1.0" />
+            <Add directory="/home/ngerakines/projects/blobserver/src/../3rd/json" />
+            <Add directory="/home/ngerakines/projects/blobserver/src/../3rd/multipartparser" />
+            <Add directory="/usr/include" />
+            <Add directory="/usr/lib/gcc/x86_64-redhat-linux/4.7.2/../../../../include/c++/4.7.2" />
+            <Add directory="/usr/lib/gcc/x86_64-redhat-linux/4.7.2/../../../../include/c++/4.7.2/backward" />
+            <Add directory="/usr/lib/gcc/x86_64-redhat-linux/4.7.2/../../../../include/c++/4.7.2/x86_64-redhat-linux" />
+            <Add directory="/usr/lib/gcc/x86_64-redhat-linux/4.7.2/include" />
+            <Add directory="/usr/local/include" />
+         </Compiler>
+         <MakeCommands>
+            <Build command="/usr/bin/gmake -f &quot;/home/ngerakines/projects/blobserver/src/Makefile&quot;  VERBOSE=1 json_spirit_lib/fast" />
+            <CompileFile command="/usr/bin/gmake -f &quot;/home/ngerakines/projects/blobserver/src/Makefile&quot;  VERBOSE=1 &quot;$file&quot;" />
+            <Clean command="/usr/bin/gmake -f &quot;/home/ngerakines/projects/blobserver/src/Makefile&quot;  VERBOSE=1 clean" />
+            <DistClean command="/usr/bin/gmake -f &quot;/home/ngerakines/projects/blobserver/src/Makefile&quot;  VERBOSE=1 clean" />
+         </MakeCommands>
+      </Target>
+      <Target title="multipart_parser_lib">
+         <Option output="/home/ngerakines/projects/blobserver/src/libmultipart_parser_lib.a" prefix_auto="0" extension_auto="0" />
+         <Option working_dir="/home/ngerakines/projects/blobserver/src" />
+         <Option object_output="./" />
+         <Option type="2" />
+         <Option compiler="gcc" />
+         <Compiler>
+            <Add directory="/home/ngerakines/projects/blobserver/src/." />
+            <Add directory="/home/ngerakines/projects/blobserver/src/../3rd/cityhash-1.1.0" />
+            <Add directory="/home/ngerakines/projects/blobserver/src/../3rd/json" />
+            <Add directory="/home/ngerakines/projects/blobserver/src/../3rd/multipartparser" />
+            <Add directory="/usr/include" />
+            <Add directory="/usr/lib/gcc/x86_64-redhat-linux/4.7.2/../../../../include/c++/4.7.2" />
+            <Add directory="/usr/lib/gcc/x86_64-redhat-linux/4.7.2/../../../../include/c++/4.7.2/backward" />
+            <Add directory="/usr/lib/gcc/x86_64-redhat-linux/4.7.2/../../../../include/c++/4.7.2/x86_64-redhat-linux" />
+            <Add directory="/usr/lib/gcc/x86_64-redhat-linux/4.7.2/include" />
+            <Add directory="/usr/local/include" />
+         </Compiler>
+         <MakeCommands>
+            <Build command="/usr/bin/gmake -f &quot;/home/ngerakines/projects/blobserver/src/Makefile&quot;  VERBOSE=1 multipart_parser_lib" />
+            <CompileFile command="/usr/bin/gmake -f &quot;/home/ngerakines/projects/blobserver/src/Makefile&quot;  VERBOSE=1 &quot;$file&quot;" />
+            <Clean command="/usr/bin/gmake -f &quot;/home/ngerakines/projects/blobserver/src/Makefile&quot;  VERBOSE=1 clean" />
+            <DistClean command="/usr/bin/gmake -f &quot;/home/ngerakines/projects/blobserver/src/Makefile&quot;  VERBOSE=1 clean" />
+         </MakeCommands>
+      </Target>
+      <Target title="multipart_parser_lib/fast">
+         <Option output="/home/ngerakines/projects/blobserver/src/libmultipart_parser_lib.a" prefix_auto="0" extension_auto="0" />
+         <Option working_dir="/home/ngerakines/projects/blobserver/src" />
+         <Option object_output="./" />
+         <Option type="2" />
+         <Option compiler="gcc" />
+         <Compiler>
+            <Add directory="/home/ngerakines/projects/blobserver/src/." />
+            <Add directory="/home/ngerakines/projects/blobserver/src/../3rd/cityhash-1.1.0" />
+            <Add directory="/home/ngerakines/projects/blobserver/src/../3rd/json" />
+            <Add directory="/home/ngerakines/projects/blobserver/src/../3rd/multipartparser" />
+            <Add directory="/usr/include" />
+            <Add directory="/usr/lib/gcc/x86_64-redhat-linux/4.7.2/../../../../include/c++/4.7.2" />
+            <Add directory="/usr/lib/gcc/x86_64-redhat-linux/4.7.2/../../../../include/c++/4.7.2/backward" />
+            <Add directory="/usr/lib/gcc/x86_64-redhat-linux/4.7.2/../../../../include/c++/4.7.2/x86_64-redhat-linux" />
+            <Add directory="/usr/lib/gcc/x86_64-redhat-linux/4.7.2/include" />
+            <Add directory="/usr/local/include" />
+         </Compiler>
+         <MakeCommands>
+            <Build command="/usr/bin/gmake -f &quot;/home/ngerakines/projects/blobserver/src/Makefile&quot;  VERBOSE=1 multipart_parser_lib/fast" />
+            <CompileFile command="/usr/bin/gmake -f &quot;/home/ngerakines/projects/blobserver/src/Makefile&quot;  VERBOSE=1 &quot;$file&quot;" />
+            <Clean command="/usr/bin/gmake -f &quot;/home/ngerakines/projects/blobserver/src/Makefile&quot;  VERBOSE=1 clean" />
+            <DistClean command="/usr/bin/gmake -f &quot;/home/ngerakines/projects/blobserver/src/Makefile&quot;  VERBOSE=1 clean" />
+         </MakeCommands>
+      </Target>
+      </Build>
+      <Unit filename="/home/ngerakines/projects/blobserver/3rd/cityhash-1.1.0/city.cc">
+      </Unit>
+      <Unit filename="/home/ngerakines/projects/blobserver/3rd/json/json_spirit_reader.cc">
+      </Unit>
+      <Unit filename="/home/ngerakines/projects/blobserver/3rd/json/json_spirit_value.cc">
+      </Unit>
+      <Unit filename="/home/ngerakines/projects/blobserver/3rd/json/json_spirit_writer.cc">
+      </Unit>
+      <Unit filename="/home/ngerakines/projects/blobserver/3rd/multipartparser/mimeparser.cpp">
+      </Unit>
+      <Unit filename="/home/ngerakines/projects/blobserver/3rd/multipartparser/mimepart.cpp">
+      </Unit>
+      <Unit filename="/home/ngerakines/projects/blobserver/src/Blob.cpp">
+      </Unit>
+      <Unit filename="/home/ngerakines/projects/blobserver/src/BlobIndex.cpp">
+      </Unit>
+      <Unit filename="/home/ngerakines/projects/blobserver/src/Config.cpp">
+      </Unit>
+      <Unit filename="/home/ngerakines/projects/blobserver/src/blobserver.cpp">
+      </Unit>
+      <Unit filename="/home/ngerakines/projects/blobserver/src/boost-multipart-form.cpp">
+      </Unit>
+      <Unit filename="/home/ngerakines/projects/blobserver/src/connection.cpp">
+      </Unit>
+      <Unit filename="/home/ngerakines/projects/blobserver/src/mime_types.cpp">
+      </Unit>
+      <Unit filename="/home/ngerakines/projects/blobserver/src/reply.cpp">
+      </Unit>
+      <Unit filename="/home/ngerakines/projects/blobserver/src/request_handler.cpp">
+      </Unit>
+      <Unit filename="/home/ngerakines/projects/blobserver/src/request_parser.cpp">
+      </Unit>
+      <Unit filename="/home/ngerakines/projects/blobserver/src/server.cpp">
+      </Unit>
+      <Unit filename="/home/ngerakines/projects/blobserver/3rd/cityhash-1.1.0/city.h">
+      </Unit>
+      <Unit filename="/home/ngerakines/projects/blobserver/3rd/json/json_spirit.h">
+      </Unit>
+      <Unit filename="/home/ngerakines/projects/blobserver/3rd/json/json_spirit_error_position.h">
+      </Unit>
+      <Unit filename="/home/ngerakines/projects/blobserver/3rd/json/json_spirit_reader.h">
+      </Unit>
+      <Unit filename="/home/ngerakines/projects/blobserver/3rd/json/json_spirit_reader_template.h">
+      </Unit>
+      <Unit filename="/home/ngerakines/projects/blobserver/3rd/json/json_spirit_stream_reader.h">
+      </Unit>
+      <Unit filename="/home/ngerakines/projects/blobserver/3rd/json/json_spirit_utils.h">
+      </Unit>
+      <Unit filename="/home/ngerakines/projects/blobserver/3rd/json/json_spirit_value.h">
+      </Unit>
+      <Unit filename="/home/ngerakines/projects/blobserver/3rd/json/json_spirit_writer.h">
+      </Unit>
+      <Unit filename="/home/ngerakines/projects/blobserver/3rd/json/json_spirit_writer_template.h">
+      </Unit>
+      <Unit filename="/home/ngerakines/projects/blobserver/3rd/multipartparser/mimeparser.h">
+      </Unit>
+      <Unit filename="/home/ngerakines/projects/blobserver/3rd/multipartparser/mimepart.h">
+      </Unit>
+      <Unit filename="/home/ngerakines/projects/blobserver/src/Blob.hpp">
+      </Unit>
+      <Unit filename="/home/ngerakines/projects/blobserver/src/BlobIndex.hpp">
+      </Unit>
+      <Unit filename="/home/ngerakines/projects/blobserver/src/Config.hpp">
+      </Unit>
+      <Unit filename="/home/ngerakines/projects/blobserver/src/boost-multipart-form.h">
+      </Unit>
+      <Unit filename="/home/ngerakines/projects/blobserver/src/connection.hpp">
+      </Unit>
+      <Unit filename="/home/ngerakines/projects/blobserver/src/header.hpp">
+      </Unit>
+      <Unit filename="/home/ngerakines/projects/blobserver/src/mime_types.hpp">
+      </Unit>
+      <Unit filename="/home/ngerakines/projects/blobserver/src/reply.hpp">
+      </Unit>
+      <Unit filename="/home/ngerakines/projects/blobserver/src/request.hpp">
+      </Unit>
+      <Unit filename="/home/ngerakines/projects/blobserver/src/request_handler.hpp">
+      </Unit>
+      <Unit filename="/home/ngerakines/projects/blobserver/src/request_parser.hpp">
+      </Unit>
+      <Unit filename="/home/ngerakines/projects/blobserver/src/server.hpp">
+      </Unit>
+      <Unit filename="/home/ngerakines/projects/blobserver/CMakeLists.txt">
+          <Option virtualFolder="CMake Files\" />
+      </Unit>
+      <Unit filename="/home/ngerakines/projects/blobserver/src/CMakeLists.txt">
+          <Option virtualFolder="CMake Files\src\" />
+      </Unit>
+   </Project>
+</CodeBlocks_project_file>

@@ -1,0 +1,312 @@
+#include "request_handler.hpp"
+#include <fstream>
+#include <sstream>
+#include <string>
+#include <boost/lexical_cast.hpp>
+#include <boost/algorithm/string/predicate.hpp>
+#include <boost/foreach.hpp>
+#include <boost/filesystem.hpp>
+
+#include "json_spirit_reader.h"
+#include "json_spirit_writer.h"
+#include "json_spirit_utils.h"
+
+#include "mime_types.hpp"
+#include "reply.hpp"
+#include "request.hpp"
+#include "Blob.hpp"
+#include "logger.hpp"
+#include "header.hpp"
+
+using namespace blobserver;
+
+namespace http {
+	namespace server3 {
+
+		request_handler::request_handler(blobserver::BlobIndex *bi, const std::string& doc_root)
+			: bi_(bi), doc_root_(doc_root) {
+		}
+
+		void request_handler::handle_request(const request& req, reply& rep) {
+			LOG_INFO("handle_request called" << std::endl);
+			// Decode url to path.
+			std::string request_path;
+
+			if (!url_decode(req.uri, request_path)) {
+				rep = reply::stock_reply(reply::bad_request);
+				return;
+			}
+
+			LOG_INFO("request_path = " << request_path << std::endl);
+
+			// Request path must be absolute and not contain "..".
+			if (request_path.empty() || request_path[0] != '/' || request_path.find("..") != std::string::npos) {
+				rep = reply::stock_reply(reply::bad_request);
+				return;
+			}
+
+			if (boost::starts_with(request_path, "/stat")) {
+				handle_stat(request_path, req, rep);
+				return;
+			}
+
+			if (req.method.compare("HEAD") == 0) {
+				handle_check(request_path, req, rep);
+				return;
+			}
+
+			if (req.method.compare("GET") == 0) {
+				handle_get(request_path, req, rep);
+				return;
+			}
+
+			if (req.method.compare("PUT") == 0) {
+				handle_put(request_path, req, rep);
+				return;
+			}
+
+			rep = reply::stock_reply(reply::bad_request);
+		}
+
+		void request_handler::handle_check(std::string request_path, const request& req, reply& rep) {
+			std::string blob_ref = request_path.substr(1);
+			Blob *foundBlob = bi_->get(blob_ref);
+
+			if (foundBlob == NULL) {
+				LOG_ERROR("blob not found: " << blob_ref);
+				rep = reply::stock_reply(reply::not_found);
+				return;
+			}
+
+			std::string full_path = doc_root_ + foundBlob->filePath();
+
+			if (!boost::filesystem::exists(full_path)) {
+				LOG_INFO("file not found: " << full_path);
+				rep = reply::stock_reply(reply::not_found);
+				return;
+			}
+
+			rep.status = reply::ok;
+			rep.headers.push_back(header("Content-Length", boost::lexical_cast<std::string>(foundBlob->size())));
+			rep.headers.push_back(header("Content-Type", "application/octet-stream"));
+		}
+
+		void request_handler::handle_get(std::string request_path, const request& req, reply& rep) {
+			std::string blob_ref = request_path.substr(1);
+			Blob *foundBlob = bi_->get(blob_ref);
+
+			if (foundBlob == NULL) {
+				LOG_INFO("blob not found: " << blob_ref);
+				rep = reply::stock_reply(reply::not_found);
+				return;
+			}
+
+			LOG_INFO(*foundBlob << std::endl);
+
+			std::string full_path = doc_root_ + foundBlob->filePath();
+			LOG_INFO("loading file from path " << full_path << std::endl);
+			std::ifstream is(full_path.c_str(), std::ios::in | std::ios::binary);
+
+			if (!is) {
+				LOG_INFO("file not found: " << full_path);
+				rep = reply::stock_reply(reply::not_found);
+				return;
+			}
+
+			rep.status = reply::ok;
+			char buf[512];
+
+			while (is.read(buf, sizeof(buf)).gcount() > 0) {
+				rep.content.append(buf, is.gcount());
+			}
+
+			rep.headers.push_back(header("Content-Length", boost::lexical_cast<std::string>(rep.content.size())));
+			rep.headers.push_back(header("Content-Type", "application/octet-stream"));
+		}
+
+		std::string request_handler::get_header(std::vector<header> headers, std::string name) {
+			std::vector<header>::iterator hi;
+			std::string lower_name = boost::to_lower_copy(name);
+
+			for (hi = headers.begin(); hi != headers.end(); hi++) {
+				if (boost::to_lower_copy((*hi).name()) == lower_name) {
+					return (*hi).value();
+				}
+			}
+
+			return "";
+		}
+
+		void request_handler::handle_put(std::string request_path, const request& req, reply& rep) {
+			LOG_INFO("handle_put called" << std::endl);
+			std::string body = req.content;
+
+			std::string content_type = get_header(req.headers, "Content-Type");
+			if (content_type == "") {
+				rep = reply::stock_reply(reply::bad_request);
+				return;
+			}
+			blobserver::Header *header = parse_boundry_header(content_type);
+
+			LOG_INFO(*(header) << std::endl);
+
+			boost::optional<std::string> boundary = header->attributeValue("boundary");
+			if (boundary) {
+				LOG_INFO("boundary = '" << *boundary << "'" << std::endl);
+
+				LOG_INFO("body" << std::endl << "******" << std::endl << body << "******" << std::endl);
+
+				MultiPartFormData mpfd(*boundary, body);
+				LOG_INFO(mpfd << std::endl);
+
+				BOOST_FOREACH(Part *part, mpfd.parts()) {
+					std::vector<char> payload = part->payload();
+					if (payload.size() > 0) {
+						LOG_INFO("payload is greater than 0" << std::endl);
+						bi_->addBlob(payload);
+					}
+				}
+
+			}
+
+			delete header;
+			// MultiPartFormData mpfd("randomboundaryXYZ", body);
+			/*
+			body.insert(0, "\r\n\r\n");
+			body.insert(0, content_type);
+			body.insert(0, "Content-type: ");
+			LOG_INFO("body: " << std::endl << body << std::endl);
+			char* chr = strdup(body.c_str());
+			MIMEParser *p = new MIMEParser();
+			int res = p->ParseMessage(chr, strlen(chr));
+			LOG_INFO("parse result: " << res << std::endl);
+
+			if (res == 0) {
+				int count = p->GetNumberOfParts();
+				BOOST_FOREACH(MIMEPart * part, p->parts()) {
+					LOG_INFO("part boundry: " << part->GetBoundary() << ", length: " << part->GetSectionSize() << std::endl);
+					LOG_INFO("content: " << std::endl << part->GetContent() << std::endl << std::endl);
+				}
+			} */
+			rep.status = reply::ok;
+		}
+
+		blobserver::Header* request_handler::parse_boundry_header(std::string header_value) {
+			header_tokens<std::string::iterator> header_tokens_parser;
+			std::map<std::string, std::string> header_tokens_map;
+			bool result = qi::parse(header_value.begin(), header_value.end(), header_tokens_parser, header_tokens_map);
+
+			if (result == false) {
+				LOG_ERROR("header not added: " << header_value << std::endl);
+				header_tokens_map.clear();
+				// return boost::scoped_ptr<Header>(new Header("Content-Type", std::map<std::string, std::string>()));
+			}
+			return new blobserver::Header("Content-Type", header_tokens_map);
+		}
+
+		void request_handler::handle_stat(std::string request_path, const request& req, reply& rep) {
+			LOG_INFO("handle_stat called" << std::endl);
+			unsigned foundCamliVersion = request_path.find("camliversion=1");
+
+			if (foundCamliVersion == std::string::npos) {
+				rep = reply::stock_reply(reply::bad_request);
+				return;
+			}
+
+			std::vector<std::string> blobs;
+
+			if (req.method == "GET") {
+				decode_query_string_blobs(&blobs, request_path);
+			}
+
+			std::vector<Blob*> response_blobs;
+			BOOST_FOREACH(std::string blob, blobs) {
+				std::cout << blob << std::endl;
+				Blob *foundBlob = bi_->get(blob);
+				LOG_INFO("blob exists? " << (foundBlob != NULL) << std::endl);
+
+				if (foundBlob != NULL) {
+					response_blobs.push_back(foundBlob);
+				}
+			}
+			json_spirit::Object result;
+			json_spirit::Array stat;
+			BOOST_FOREACH(Blob * blob, response_blobs) {
+				json_spirit::Object blob_value;
+				blob_value.push_back(json_spirit::Pair("blobRef", blob->ref()));
+				blob_value.push_back(json_spirit::Pair("size", blob->size()));
+				stat.push_back(blob_value);
+			}
+			result.push_back(json_spirit::Pair("stat", stat));
+			result.push_back(json_spirit::Pair("maxUploadSize", 1048576));
+			result.push_back(json_spirit::Pair("uploadUrl", "/upload"));
+			result.push_back(json_spirit::Pair("uploadUrlExpirationSeconds", 7200));
+			result.push_back(json_spirit::Pair("canLongPoll", false));
+			rep.status = reply::ok;
+			rep.content = json_spirit::write(result);
+			rep.content += "\r\n";
+			rep.headers.push_back(header("Content-Length", boost::lexical_cast<std::string>(rep.content.size())));
+			rep.headers.push_back(header("Content-Type", "application/json"));
+		}
+
+		void request_handler::decode_query_string_blobs(std::vector<std::string>* blobs, std::string request_path) {
+			unsigned found = request_path.find("?");
+
+			if (found != std::string::npos) {
+				std::string query = request_path.substr(found + 1);
+				std::string input(query);
+				std::string::iterator begin = input.begin();
+				std::string::iterator end = input.end();
+				keys_and_values<std::string::iterator> p;
+				std::map<std::string, std::string> m;
+				bool result = qi::parse(begin, end, p, m);
+
+				if (result) {
+					std::map<std::string, std::string>::iterator iter;
+
+					for (iter = m.begin(); iter != m.end(); ++iter) {
+						LOG_INFO(iter->first << " = " << iter->second << std::endl);
+
+						if (boost::starts_with(iter->first, "blob")) {
+							blobs->push_back(iter->second);
+						}
+					}
+				}
+			}
+		}
+
+		bool request_handler::url_decode(const std::string& in, std::string& out) {
+			out.clear();
+			out.reserve(in.size());
+
+			for (std::size_t i = 0; i < in.size(); ++i) {
+				if (in[i] == '%') {
+					if (i + 3 <= in.size()) {
+						int value = 0;
+						std::istringstream is(in.substr(i + 1, 2));
+
+						if (is >> std::hex >> value) {
+							out += static_cast<char>(value);
+							i += 2;
+
+						} else {
+							return false;
+						}
+
+					} else {
+						return false;
+					}
+
+				} else if (in[i] == '+') {
+					out += ' ';
+
+				} else {
+					out += in[i];
+				}
+			}
+
+			return true;
+		}
+
+	}
+}

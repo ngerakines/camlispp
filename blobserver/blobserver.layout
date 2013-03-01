@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_layout_file>
+	<ActiveTarget name="all" />
+	<File name="3rd/cityhash-1.1.0/city.cc" open="0" top="0" tabpos="0">
+		<Cursor position="14770" topLine="448" />
+	</File>
+	<File name="3rd/cityhash-1.1.0/city.h" open="0" top="0" tabpos="0">
+		<Cursor position="2615" topLine="12" />
+	</File>
+	<File name="3rd/json/json_spirit.h" open="0" top="0" tabpos="0">
+		<Cursor position="396" topLine="0" />
+	</File>
+	<File name="3rd/json/json_spirit_reader.h" open="0" top="0" tabpos="0">
+		<Cursor position="1251" topLine="0" />
+	</File>
+	<File name="3rd/json/json_spirit_reader_template.h" open="0" top="0" tabpos="0">
+		<Cursor position="7016" topLine="173" />
+	</File>
+	<File name="3rd/json/json_spirit_utils.h" open="0" top="0" tabpos="0">
+		<Cursor position="448" topLine="0" />
+	</File>
+	<File name="3rd/json/json_spirit_value.h" open="0" top="0" tabpos="0">
+		<Cursor position="2317" topLine="21" />
+	</File>
+	<File name="3rd/json/json_spirit_writer.h" open="0" top="0" tabpos="0">
+		<Cursor position="1197" topLine="0" />
+	</File>
+	<File name="3rd/json/json_spirit_writer_template.h" open="0" top="0" tabpos="0">
+		<Cursor position="3414" topLine="72" />
+	</File>
+	<File name="3rd/multipartparser/mimeparser.cpp" open="0" top="0" tabpos="0">
+		<Cursor position="742" topLine="0" />
+	</File>
+	<File name="3rd/multipartparser/mimeparser.h" open="0" top="0" tabpos="0">
+		<Cursor position="394" topLine="0" />
+	</File>
+	<File name="3rd/multipartparser/mimepart.cpp" open="0" top="0" tabpos="0">
+		<Cursor position="1076" topLine="30" />
+	</File>
+	<File name="3rd/multipartparser/mimepart.h" open="0" top="0" tabpos="0">
+		<Cursor position="1273" topLine="0" />
+	</File>
+	<File name="CMakeLists.txt" open="0" top="0" tabpos="1">
+		<Cursor position="120" topLine="0" />
+	</File>
+	<File name="src/Blob.cpp" open="0" top="0" tabpos="1">
+		<Cursor position="310" topLine="0" />
+	</File>
+	<File name="src/Blob.hpp" open="0" top="0" tabpos="0">
+		<Cursor position="937" topLine="0" />
+	</File>
+	<File name="src/BlobIndex.cpp" open="0" top="0" tabpos="5">
+		<Cursor position="1640" topLine="0" />
+	</File>
+	<File name="src/BlobIndex.hpp" open="0" top="0" tabpos="0">
+		<Cursor position="286" topLine="0" />
+	</File>
+	<File name="src/CMakeLists.txt" open="0" top="0" tabpos="0">
+		<Cursor position="1860" topLine="0" />
+	</File>
+	<File name="src/Config.cpp" open="0" top="0" tabpos="0">
+		<Cursor position="51" topLine="0" />
+	</File>
+	<File name="src/Config.hpp" open="0" top="0" tabpos="0">
+		<Cursor position="787" topLine="0" />
+	</File>
+	<File name="src/blobserver.cpp" open="0" top="0" tabpos="0">
+		<Cursor position="2794" topLine="40" />
+	</File>
+	<File name="src/connection.hpp" open="0" top="0" tabpos="0">
+		<Cursor position="1831" topLine="0" />
+	</File>
+	<File name="src/mime_types.hpp" open="0" top="0" tabpos="0">
+		<Cursor position="287" topLine="0" />
+	</File>
+	<File name="src/reply.hpp" open="0" top="0" tabpos="3">
+		<Cursor position="357" topLine="0" />
+	</File>
+	<File name="src/request.hpp" open="0" top="0" tabpos="4">
+		<Cursor position="2181" topLine="0" />
+	</File>
+	<File name="src/request_handler.cpp" open="1" top="1" tabpos="0">
+		<Cursor position="4480" topLine="114" />
+	</File>
+	<File name="src/request_handler.hpp" open="0" top="0" tabpos="0">
+		<Cursor position="1831" topLine="0" />
+	</File>
+	<File name="src/request_parser.cpp" open="0" top="0" tabpos="1">
+		<Cursor position="1790" topLine="75" />
+	</File>
+	<File name="src/request_parser.hpp" open="0" top="0" tabpos="0">
+		<Cursor position="2279" topLine="0" />
+	</File>
+	<File name="src/server.cpp" open="0" top="0" tabpos="0">
+		<Cursor position="2459" topLine="0" />
+	</File>
+	<File name="src/server.hpp" open="0" top="0" tabpos="0">
+		<Cursor position="1682" topLine="0" />
+	</File>
+</CodeBlocks_layout_file>
