@@ -20,7 +20,7 @@ namespace blobserver {
 
 	class Blob final {
 		public:
-			Blob(int base_hash, std::string filePath);
+			explicit Blob(int base_hash, std::string filePath);
 
 			std::string filePath() ;
 

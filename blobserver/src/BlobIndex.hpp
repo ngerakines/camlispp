@@ -13,7 +13,7 @@ namespace blobserver {
 
 	class BlobIndex {
 		public:
-			BlobIndex(Config *config);
+			explicit BlobIndex(Config *config);
 
 			~BlobIndex();
 

@@ -8,7 +8,7 @@ namespace blobserver {
 	class Config {
 
 		public:
-			Config() : directory_("/tmp/"), ip_("0.0.0.0"), port_("8080"), threads_(2) { }
+			explicit Config() : directory_("/tmp/"), ip_("0.0.0.0"), port_("8080"), threads_(2) { }
 			~Config() { }
 
 			void directory(std::string directory) {

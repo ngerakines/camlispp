@@ -50,6 +50,7 @@ namespace blobserver {
 		for (int i = 0; i < (int) parts_.size(); i++) {
 			delete parts_[i];
 		}
+
 		parts_.clear();
 	}
 

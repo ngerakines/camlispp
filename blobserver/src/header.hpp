@@ -15,7 +15,7 @@ namespace http {
 
 				header();
 
-				header(std::string name, std::string value);
+				explicit header(std::string name, std::string value);
 
 				std::string name();
 

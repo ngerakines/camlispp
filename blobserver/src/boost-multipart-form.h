@@ -108,7 +108,7 @@ namespace blobserver {
 	class Header {
 
 		public:
-			Header(std::string name, std::map<std::string, std::string> attributes);
+			explicit Header(std::string name, std::map<std::string, std::string> attributes);
 
 			std::string name();
 
@@ -157,8 +157,7 @@ namespace blobserver {
 	class MultiPartFormData final {
 
 		public:
-
-			MultiPartFormData(std::string boundry, std::string input);
+			explicit MultiPartFormData(std::string boundry, std::string input);
 			~MultiPartFormData();
 
 			std::string boundry();
