@@ -35,7 +35,13 @@ This project was kicked off to get me back into the world of c++. I've been foll
 
 # Errata
 
-alias style='astyle -A2 --indent=tab -C -N -Y -f -F -xd -j -J -p -H -n'
+Please use the following astyle config when contributing:
+
+    alias style='astyle -A2 --indent=tab -C -N -Y -f -F -xd -j -J -p -H -n'
+
+To enable object dumping for debug, use the following options when generating build files:
+
+    cmake . -DENABLE_DEBUG=ON -DENABLE_DUMP=ON
 
 # License
 
