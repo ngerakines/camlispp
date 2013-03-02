@@ -2,12 +2,14 @@
 #define __BLOBSERVER_BLOB_INDEX_H__
 
 #include <string>
+#include <map>
 #include <vector>
 
 #include <boost/thread/mutex.hpp>
 
-#include "Blob.hpp"
 #include "Config.hpp"
+#include "Blob.hpp"
+#include "BlobKey.hpp"
 
 namespace blobserver {
 
@@ -27,7 +29,7 @@ namespace blobserver {
 
 		private:
 			Config *config_;
-			std::vector<Blob *> blobs_;
+			std::map<BlobKey, Blob *> blobs_;
 			mutable boost::mutex mutex_;
 	};
 
