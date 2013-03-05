@@ -200,22 +200,15 @@ namespace http {
 				decode_query_string_blobs(&blobs, request_path);
 			}
 
-			std::vector<Blob*> response_blobs;
+			json_spirit::Object result;
+			json_spirit::Array stat;
 			BOOST_FOREACH(std::string blob, blobs) {
 				std::cout << blob << std::endl;
 				Blob *foundBlob = bi_->get(blob);
 				LOG_INFO("blob exists? " << (foundBlob != NULL) << std::endl);
-
-				if (foundBlob != NULL) {
-					response_blobs.push_back(foundBlob);
-				}
-			}
-			json_spirit::Object result;
-			json_spirit::Array stat;
-			BOOST_FOREACH(Blob * blob, response_blobs) {
 				json_spirit::Object blob_value;
-				blob_value.push_back(json_spirit::Pair("blobRef", blob->ref()));
-				blob_value.push_back(json_spirit::Pair("size", blob->size()));
+				blob_value.push_back(json_spirit::Pair("blobRef", blob));
+				blob_value.push_back(json_spirit::Pair("size", foundBlob->size()));
 				stat.push_back(blob_value);
 			}
 			result.push_back(json_spirit::Pair("stat", stat));

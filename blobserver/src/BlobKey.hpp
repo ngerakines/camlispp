@@ -12,6 +12,7 @@ namespace blobserver {
 		public:
 			explicit BlobKey(std::string hash_type, std::string hash_value);
 
+			// NKG: Consider making this not a friend method.
 			friend 	bool operator<(const BlobKey& mk1, const BlobKey& mk2) {
 				if (mk1.hash_type_ != mk2.hash_type_ ) {
 					return mk1.hash_type_ < mk2.hash_type_;
@@ -36,6 +37,7 @@ namespace blobserver {
 
 	boost::optional<BlobKey> create_blob_key(std::string hash);
 
+	// NKG: Consider moving this to the operator== method within the BlobKey class.
 	struct cmpr_BlobKey {
 		bool operator()(const BlobKey& mk1, const BlobKey& mk2) {
 			return mk1.hash_type() == mk2.hash_type() && mk1.hash_value() == mk2.hash_value();

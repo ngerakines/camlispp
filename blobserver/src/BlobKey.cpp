@@ -9,6 +9,9 @@ namespace blobserver {
 	BlobKey::BlobKey(std::string hash_type, std::string hash_value) : hash_type_(hash_type), hash_value_(hash_value) {
 	}
 
+	// NKG: There are two things that I'm not a fan of (a) exceptions and
+	// (b) null. I'm using optional here to imply that a blob key could
+	// not be made from a given hash.
 	boost::optional<BlobKey> create_blob_key(std::string hash) {
 		unsigned split_pos = hash.find("-");
 
@@ -20,4 +23,5 @@ namespace blobserver {
 
 		return boost::optional<BlobKey>();
 	}
+
 }

@@ -1,11 +1,13 @@
 #ifndef __BLOBSERVER_BLOB_H__
 #define __BLOBSERVER_BLOB_H__
 
+#include <cstring>
 #include <string>
 #include <vector>
+#include <set>
+#if defined ENABLE_DUMP
 #include <iostream>
-
-#include <boost/container/map.hpp>
+#endif
 
 #include "config.h"
 #include "city.h"
@@ -18,29 +20,33 @@
 
 namespace blobserver {
 
+	struct CaseSensitiveCompare {
+		bool operator() (const std::string& a, const std::string& b) const {
+			return strcmp(a.c_str(), b.c_str()) < 0;
+		}
+	};
+
 	class Blob final {
 		public:
-			explicit Blob(int base_hash, std::string filePath);
+			explicit Blob(std::string filePath);
 
-			std::string filePath() ;
+			std::string filePath();
 
 			int size();
 			void size(int size);
 
-			int base_hash();
+			void add_hash(std::string hash);
+			// std::set<std::string> hashes();
 
-			std::string ref();
-
-			bool is_match(std::string hash_type, std::string encoded_hash);
+			bool is_match(std::string hash);
 
 #if defined ENABLE_DUMP
 			std::ostream& dump(std::ostream& o) const;
 #endif
 		private:
-			uint32 base_hash_;
 			std::string filePath_;
 			int size_;
-			boost::container::map<std::string, std::vector<char> > hashes_;
+			std::set<std::string, CaseSensitiveCompare> hashes_;
 	};
 
 }

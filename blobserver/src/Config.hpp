@@ -8,46 +8,30 @@ namespace blobserver {
 	class Config {
 
 		public:
-			explicit Config() : directory_("/tmp/"), ip_("0.0.0.0"), port_("8080"), threads_(2) { }
-			~Config() { }
+			explicit Config();
+			~Config();
 
-			void directory(std::string directory) {
-				directory_ = directory;
-			}
+			void directory(std::string directory);
+			std::string directory();
 
-			std::string directory() {
-				return directory_;
-			}
+			void ip(std::string ip);
+			std::string ip() ;
 
-			void ip(std::string ip) {
-				ip_ = ip;
-			}
+			std::string port();
+			void port(std::string port);
 
-			std::string ip() {
-				return ip_;
-			}
+			int threads();
+			void threads(int threads);
 
-			std::string port() {
-				return port_;
-			}
-
-			void port(std::string port) {
-				port_ = port;
-			}
-
-			int threads() {
-				return threads_;
-			}
-
-			void threads(int threads) {
-				threads_ = threads;
-			}
+			bool validate();
+			void validate(bool validate);
 
 		private:
 			std::string directory_;
 			std::string ip_;
 			std::string port_;
 			int threads_;
+			bool validate_;
 	};
 
 }

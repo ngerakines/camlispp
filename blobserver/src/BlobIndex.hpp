@@ -10,6 +10,7 @@
 #include "Config.hpp"
 #include "Blob.hpp"
 #include "BlobKey.hpp"
+#include "Hash.hpp"
 
 namespace blobserver {
 
@@ -19,7 +20,7 @@ namespace blobserver {
 
 			~BlobIndex();
 
-			void addBlob(std::vector<char> bytes);
+			Blob* addBlob(std::vector<char> bytes);
 
 			bool empty();
 
@@ -32,6 +33,8 @@ namespace blobserver {
 			std::map<BlobKey, Blob *> blobs_;
 			mutable boost::mutex mutex_;
 	};
+
+	std::string blob_filename(std::string hash);
 
 }
 

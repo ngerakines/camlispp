@@ -2,15 +2,15 @@
 #include "Blob.hpp"
 
 #include <sstream>
-
+#include <string>
+#include <set>
 #include <boost/lexical_cast.hpp>
 
 #include "logger.hpp"
 
 namespace blobserver {
 
-	Blob::Blob(int base_hash, std::string filePath) : base_hash_(base_hash), filePath_(filePath), size_(0) {
-	}
+	Blob::Blob(std::string filePath) : filePath_(filePath), size_(0) { }
 
 	std::string Blob::filePath() {
 		return filePath_;
@@ -23,28 +23,22 @@ namespace blobserver {
 		size_ = size;
 	}
 
-	int Blob::base_hash() {
-		return base_hash_;
+	void Blob::add_hash(std::string hash) {
+		hashes_.insert(hash);
 	}
 
-	std::string Blob::ref() {
-		std::stringstream ss (std::stringstream::in | std::stringstream::out);
-		ss << "ch32-" << base_hash_;
-		return ss.str();
-	}
+	/* std::set<std::string> Blob::hashes() {
+		return hashes_;
+	} */
 
-	bool Blob::is_match(std::string hash_type, std::string encoded_hash) {
-		if (hash_type == "ch32") {
-			LOG_INFO("checking hash of '" << encoded_hash << "' against " << base_hash_ << std::endl);
-			uint32 x = boost::lexical_cast<uint32>(encoded_hash);
+	bool Blob::is_match(std::string hash) {
+		auto it = hashes_.find(hash);
 
-			if (x == base_hash_) {
-				LOG_INFO("match!" << std::endl);
-				return true;
-			}
+		if (it == hashes_.end()) {
+			return false;
 		}
 
-		return false;
+		return true;
 	}
 
 #if defined ENABLE_DUMP
