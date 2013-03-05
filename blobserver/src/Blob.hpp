@@ -26,6 +26,8 @@ namespace blobserver {
 		}
 	};
 
+	typedef std::set<std::string, CaseSensitiveCompare> sset;
+
 	class Blob final {
 		public:
 			explicit Blob(std::string filePath);
@@ -36,7 +38,7 @@ namespace blobserver {
 			void size(int size);
 
 			void add_hash(std::string hash);
-			// std::set<std::string> hashes();
+			sset hashes();
 
 			bool is_match(std::string hash);
 
@@ -46,7 +48,7 @@ namespace blobserver {
 		private:
 			std::string filePath_;
 			int size_;
-			std::set<std::string, CaseSensitiveCompare> hashes_;
+			sset hashes_;
 	};
 
 }

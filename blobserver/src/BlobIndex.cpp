@@ -17,7 +17,7 @@ namespace blobserver {
 	BlobIndex::BlobIndex(Config *config) : config_(config) { }
 
 	BlobIndex::~BlobIndex() {
-for (auto & entry : blobs_) {
+		for (auto &entry : blobs_) {
 			delete entry.second;
 		}
 
@@ -25,14 +25,16 @@ for (auto & entry : blobs_) {
 	}
 
 	// NKG: Still undecided on vector<char> vs char*
-	Blob* BlobIndex::addBlob(std::vector<char> bytes) {
+	Blob* BlobIndex::add_blob(std::vector<char> *bytes) {
+		return add_blob(bytes, {HashType::city});
+	}
+
+	Blob* BlobIndex::add_blob(std::vector<char> *bytes, std::vector<HashType> hash_types) {
 		boost::mutex::scoped_lock lock(mutex_);
-		auto buffer = std::string(bytes.begin(), bytes.end()).c_str();
-		auto buffer_length = bytes.size();
+		auto buffer = std::string(bytes->begin(), bytes->end()).c_str();
+		auto buffer_length = bytes->size();
 		std::string hash = CityHash()(buffer, buffer_length);
-		BlobKey blob_key("ch32", hash);
 		Blob *b = new Blob(hash);
-		b->add_hash("ch32-" + hash);
 		std::string full_path = config_->directory() + b ->filePath();
 
 		if (!boost::filesystem::exists(full_path)) {
@@ -40,12 +42,52 @@ for (auto & entry : blobs_) {
 			std::ofstream fs(full_path.c_str(), std::ofstream::binary);
 			fs.write(buffer, strlen(buffer));
 			fs.close();
-
-		} else {
-			// TODO[NKG]: Determine that the file on path matches the provided bytes.
 		}
 
-		blobs_[blob_key] = b;
+		for (HashType &hash_type : hash_types) {
+			switch (hash_type) {
+#if defined ENABLE_MD5
+			case HashType::md5: {
+				std::string hash = MessageDigest5()(buffer, buffer_length);
+				BlobKey blob_key("md5", hash);
+				blobs_[blob_key] = b;
+				b->add_hash("md5-" + hash);
+				break;
+			}
+#endif
+			case HashType::sha1: {
+				std::string hash = Sha1()(buffer, buffer_length);
+				BlobKey blob_key("sha1", hash);
+				blobs_[blob_key] = b;
+				b->add_hash("sha1-" + hash);
+				break;
+			}
+
+			case HashType::sha256: {
+				std::string hash = Sha256()(buffer, buffer_length);
+				BlobKey blob_key("sha256", hash);
+				blobs_[blob_key] = b;
+				b->add_hash("sha256-" + hash);
+				break;
+			}
+
+			case HashType::city: {
+				BlobKey blob_key("ch32", hash);
+				blobs_[blob_key] = b;
+				b->add_hash("ch32-" + hash);
+				break;
+			}
+
+			case HashType::murmur3: {
+				std::string hash = Murmur3()(buffer, buffer_length);
+				BlobKey blob_key("murmur3", hash);
+				blobs_[blob_key] = b;
+				b->add_hash("murmur3-" + hash);
+				break;
+			}
+			}
+		}
+
 		return b;
 	}
 
@@ -74,5 +116,29 @@ for (auto & entry : blobs_) {
 		return (int) blobs_.size();
 	}
 
-}
+	void BlobIndex::paginate(std::vector<std::pair<BlobKey, Blob*>> *blobs) {
+		paginate(blobs, boost::optional<std::string>(), 25);
+	}
 
+	void BlobIndex::paginate(std::vector<std::pair<BlobKey, Blob*>> *blobs, boost::optional<std::string> last, int count) {
+		std::map<BlobKey, Blob*>::iterator iterator;
+		if (last) {
+			boost::optional<BlobKey> b = create_blob_key(*last);
+			if (b) {
+				iterator = blobs_.lower_bound(*b);
+			} else {
+				iterator = blobs_.begin();
+			}
+		} else {
+			iterator = blobs_.begin();
+		}
+		for (; iterator != blobs_.end(); ++iterator) {
+				blobs->push_back(std::make_pair(iterator->first, iterator->second));
+
+				if (blobs->size() >= count) {
+					return;
+				}
+		}
+	}
+
+}

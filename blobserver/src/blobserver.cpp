@@ -99,8 +99,8 @@ int main(int argc, char **argv, char ** /* **ppenv */) {
 	std::vector<char> vec(buf, buf + sizeof(buf) / sizeof(buf[0]));
 	std::vector<char> vec2(buf2, buf2 + sizeof(buf2) / sizeof(buf2[0]));
 	BlobIndex bi(&config);
-	bi.addBlob(vec);
-	bi.addBlob(vec2);
+	bi.add_blob(&vec);
+	bi.add_blob(&vec2);
 
 	try {
 		// Initialise the server.

@@ -50,6 +50,11 @@ namespace http {
 				return;
 			}
 
+			if (boost::starts_with(request_path, "/enumerate-blobs") && req.method.compare("GET") == 0) {
+				handle_enumerate(request_path, req, rep);
+				return;
+			}
+
 			if (req.method.compare("HEAD") == 0) {
 				handle_check(request_path, req, rep);
 				return;
@@ -138,6 +143,33 @@ namespace http {
 			return "";
 		}
 
+		void request_handler::handle_enumerate(std::string request_path, const request& req, reply& rep) {
+
+			std::vector<std::pair<BlobKey, Blob*>> blobs;
+
+			bi_->paginate(&blobs);
+
+			json_spirit::Object result;
+			json_spirit::Array stat;
+			for (auto &pair : blobs) {
+				json_spirit::Object blob_value;
+				blob_value.push_back(json_spirit::Pair("blobRef", pair.first.blobref()));
+				blob_value.push_back(json_spirit::Pair("size", pair.second->size()));
+				stat.push_back(blob_value);
+			}
+			result.push_back(json_spirit::Pair("blobs", stat));
+			if (blobs.size() > 0) {
+				auto last = blobs.back();
+				result.push_back(json_spirit::Pair("continueAfter", last.first.blobref()));
+			}
+			result.push_back(json_spirit::Pair("canLongPoll", "false"));
+			rep.status = reply::ok;
+			rep.content = json_spirit::write(result);
+			rep.content += "\r\n";
+			rep.headers.push_back(header("Content-Length", boost::lexical_cast<std::string>(rep.content.size())));
+			rep.headers.push_back(header("Content-Type", "application/json"));
+		}
+
 		void request_handler::handle_put(std::string request_path, const request& req, reply& rep) {
 			LOG_INFO("handle_put called" << std::endl);
 			std::string body = req.content;
@@ -162,7 +194,7 @@ namespace http {
 
 					if (payload.size() > 0) {
 						LOG_INFO("payload is greater than 0" << std::endl);
-						bi_->addBlob(payload);
+						bi_->add_blob(&payload);
 					}
 				}
 			}

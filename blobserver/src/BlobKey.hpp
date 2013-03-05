@@ -29,6 +29,10 @@ namespace blobserver {
 				return hash_value_;
 			}
 
+			std::string blobref() {
+				return hash_type_ + "-" + hash_value_;
+			}
+
 		private:
 			std::string hash_type_;
 			std::string hash_value_;

@@ -9,6 +9,12 @@
 #define DEBUG 1
 #endif
 
+#cmakedefine ENABLE_MD5
+
+#if defined ENABLE_MD5
+#define CRYPTOPP_ENABLE_NAMESPACE_WEAK 1
+#endif
+
 #define DAEMON_NAME "blobserver"
 
 #endif

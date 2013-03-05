@@ -20,7 +20,8 @@ namespace blobserver {
 
 			~BlobIndex();
 
-			Blob* addBlob(std::vector<char> bytes);
+			Blob* add_blob(std::vector<char> *bytes);
+			Blob* add_blob(std::vector<char> *bytes, std::vector<HashType> hash_types);
 
 			bool empty();
 
@@ -28,9 +29,12 @@ namespace blobserver {
 
 			Blob* get(std::string hash);
 
+			void paginate(std::vector<std::pair<BlobKey, Blob*>> *blobs);
+			void paginate(std::vector<std::pair<BlobKey, Blob*>> *blobs, boost::optional<std::string> last, int count);
+
 		private:
 			Config *config_;
-			std::map<BlobKey, Blob *> blobs_;
+			std::map<BlobKey, Blob*> blobs_;
 			mutable boost::mutex mutex_;
 	};
 

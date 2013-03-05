@@ -64,6 +64,8 @@ namespace http {
 
 				void handle_check(std::string request_path, const request& req, reply& rep);
 
+				void handle_enumerate(std::string request_path, const request& req, reply& rep);
+
 				void decode_query_string_blobs(std::vector<std::string>* blobs, std::string request_path);
 
 				std::string get_header(std::vector<header> headers, std::string name);
