@@ -6,6 +6,11 @@
 #include <vector>
 
 #include <boost/thread/mutex.hpp>
+#include <boost/serialization/list.hpp>
+#include <boost/serialization/map.hpp>
+#include <boost/serialization/string.hpp>
+#include <boost/serialization/version.hpp>
+#include <boost/serialization/split_member.hpp>
 
 #include "Config.hpp"
 #include "Blob.hpp"
@@ -38,6 +43,16 @@ namespace blobserver {
 			Config *config_;
 			std::map<BlobKey, Blob*> blobs_;
 			mutable boost::mutex mutex_;
+
+			friend class boost::serialization::access;
+
+			// When the class Archive corresponds to an output archive, the
+			// & operator is defined similar to <<.  Likewise, when the class Archive
+			// is a type of input archive the & operator is defined similar to >>.
+			template<class Archive>
+			void serialize(Archive & ar, const unsigned int version) {
+				ar & blobs_;
+			}
 	};
 
 	std::string blob_filename(std::string hash);

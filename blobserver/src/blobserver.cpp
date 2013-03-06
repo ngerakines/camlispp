@@ -36,6 +36,15 @@
 #include <boost/asio.hpp>
 #include <boost/bind.hpp>
 #include <boost/lexical_cast.hpp>
+#include <boost/archive/tmpdir.hpp>
+
+#include <boost/archive/text_iarchive.hpp>
+#include <boost/archive/text_oarchive.hpp>
+
+#include <boost/serialization/base_object.hpp>
+#include <boost/serialization/utility.hpp>
+#include <boost/serialization/list.hpp>
+#include <boost/serialization/assume_abstract.hpp>
 
 #include "server.hpp"
 #include "Config.hpp"
@@ -54,6 +63,13 @@ void sighandler(int signum) {
 	if (signum == SIGINT) {
 		running = false;
 	}
+}
+
+void save_blob_index(const BlobIndex &bi, const char * filename) {
+	// make an archive
+	std::ofstream ofs(filename);
+	boost::archive::text_oarchive oa(ofs);
+	oa << bi;
 }
 
 int main(int argc, char **argv, char ** /* **ppenv */) {
@@ -101,6 +117,10 @@ int main(int argc, char **argv, char ** /* **ppenv */) {
 	BlobIndex bi(&config);
 	bi.add_blob(&vec);
 	bi.add_blob(&vec2);
+
+	std::string filename(boost::archive::tmpdir());
+	filename += "/demofile.txt";
+	save_blob_index(bi, filename.c_str());
 
 	try {
 		// Initialise the server.

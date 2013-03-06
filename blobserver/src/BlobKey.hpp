@@ -4,6 +4,8 @@
 
 #include <string>
 #include <boost/optional.hpp>
+#include <boost/archive/text_oarchive.hpp>
+#include <boost/archive/text_iarchive.hpp>
 
 namespace blobserver {
 
@@ -37,6 +39,17 @@ namespace blobserver {
 		private:
 			std::string hash_type_;
 			std::string hash_value_;
+
+			friend class boost::serialization::access;
+
+			// When the class Archive corresponds to an output archive, the
+			// & operator is defined similar to <<.  Likewise, when the class Archive
+			// is a type of input archive the & operator is defined similar to >>.
+			template<class Archive>
+			void serialize(Archive & ar, const unsigned int version) {
+				ar & hash_type_;
+				ar & hash_value_;
+			}
 
 	};
 

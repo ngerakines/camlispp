@@ -4,6 +4,7 @@ find_library(BOOST_THR NAMES boost_thread boost_thread-mt)
 find_library(BOOST_SYS NAMES boost_system boost_system-mt)
 find_library(BOOST_FS NAMES boost_filesystem boost_filesystem-mt)
 find_library(BOOST_PO NAMES boost_program_options boost_program_options-mt)
+find_library(BOOST_SE NAMES boost_serialization boost_serialization-mt)
 find_library(CRYPTOPP NAMES cryptopp)
 
 SET(CITY_HASH_SRC_DIR "../../3rd/cityhash-1.1.0/")
@@ -26,4 +27,4 @@ ADD_LIBRARY(murmur_lib STATIC ${MURMUR_SRC_DIR}/MurmurHash3.cpp ${MURMUR_SRC_DIR
 add_definitions(-g -gstabs+)
 
 add_executable(blobserver blobserver.cpp Config.cpp BlobKey.cpp Blob.cpp BlobIndex.cpp Hash.cpp connection.cpp mime_types.cpp request_handler.cpp server.cpp reply.cpp request_parser.cpp request.hpp header.hpp boost-multipart-form.cpp header.cpp)
-TARGET_LINK_LIBRARIES(blobserver ${BOOST_SYS} ${BOOST_FS} ${BOOST_THR} ${BOOST_PO} ${CRYPTOPP} pthread cityhash_lib json_spirit_lib murmur_lib)
+TARGET_LINK_LIBRARIES(blobserver ${BOOST_SYS} ${BOOST_FS} ${BOOST_THR} ${BOOST_PO} ${CRYPTOPP} ${BOOST_SE} pthread cityhash_lib json_spirit_lib murmur_lib)
