@@ -7,13 +7,12 @@
 namespace http {
 	namespace server3 {
 
-		server::server(blobserver::BlobIndex *bi, const std::string& address, const std::string& port,
-		               const std::string& doc_root, std::size_t thread_pool_size)
+		server::server(blobserver::Config *c, blobserver::BlobIndex *bi, const std::string& address, const std::string& port, std::size_t thread_pool_size)
 			: thread_pool_size_(thread_pool_size),
 			  signals_(io_service_),
 			  acceptor_(io_service_),
 			  new_connection_(),
-			  request_handler_(bi, doc_root) {
+			  request_handler_(c, bi) {
 			// Register to handle the signals that indicate when the server should exit.
 			// It is safe to register for the same signal multiple times in a program,
 			// provided all registration for the specified signal is made through Asio.

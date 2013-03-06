@@ -23,12 +23,15 @@ namespace blobserver {
 	BlobIndex::~BlobIndex() {
 		// NKG: This should be cleaned up.
 		std::set<Blob*> blobs;
-		for (auto & entry : blobs_) {
+
+for (auto & entry : blobs_) {
 			blobs.insert(entry.second);
 		}
+
 		for (auto iterator = blobs.begin(); iterator != blobs.end(); ++iterator) {
 			delete *iterator;
 		}
+
 		blobs_.clear();
 	}
 
@@ -39,6 +42,7 @@ namespace blobserver {
 
 	std::string BlobIndex::create_path(std::string hash) {
 		std::string directory = config_->directory();
+
 		if (!boost::ends_with(directory, "/")) {
 			directory += "/";
 		}
@@ -46,11 +50,9 @@ namespace blobserver {
 		// NKG: Please don't judge me for this.
 		std::string first = hash.substr(0, 3);
 		int first_int = atoi(first.c_str());
-
 		std::ostringstream ss;
 		ss << std::hex << std::uppercase << std::setfill('0') << first_int;
 		directory += ss.str() + "/";
-
 		boost::filesystem::create_directories(directory);
 		return directory + hash + ".dat";
 	}
@@ -60,9 +62,10 @@ namespace blobserver {
 		auto buffer = std::string(bytes->begin(), bytes->end()).c_str();
 		auto buffer_length = strlen(buffer);
 		std::string hash = CityHash()(buffer, buffer_length);
-
 		std::string path = create_path(hash);
 		Blob *b = new Blob(path);
+		b->size(bytes->size());
+
 		if (!boost::filesystem::exists(path)) {
 			LOG_INFO("Blob does not exist on disk, writing to " << path << std::endl);
 			std::ofstream fs(path.c_str(), std::ofstream::binary);
@@ -70,7 +73,7 @@ namespace blobserver {
 			fs.close();
 		}
 
-		for (HashType & hash_type : hash_types) {
+for (HashType & hash_type : hash_types) {
 			switch (hash_type) {
 #if defined ENABLE_MD5
 

@@ -12,7 +12,8 @@ namespace blobserver {
 	class BlobKey {
 
 		public:
-			explicit BlobKey(std::string hash_type, std::string hash_value);\
+			explicit BlobKey(std::string hash_type, std::string hash_value);
+			\
 			~BlobKey();
 
 			// NKG: Consider making this not a friend method.

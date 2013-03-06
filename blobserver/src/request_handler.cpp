@@ -23,9 +23,7 @@ using namespace blobserver;
 namespace http {
 	namespace server3 {
 
-		request_handler::request_handler(blobserver::BlobIndex *bi, const std::string& doc_root)
-			: bi_(bi), doc_root_(doc_root) {
-		}
+		request_handler::request_handler(blobserver::Config *c, blobserver::BlobIndex *bi) : c_(c), bi_(bi) { }
 
 		void request_handler::handle_request(const request& req, reply& rep) {
 			LOG_INFO("handle_request called" << std::endl);
@@ -44,6 +42,13 @@ namespace http {
 				rep = reply::stock_reply(reply::bad_request);
 				return;
 			}
+
+#if defined ENABLE_STATIC
+			if (boost::starts_with(request_path, "/static/")) {
+				handle_static(request_path, req, rep);
+				return;
+			}
+#endif
 
 			if (boost::starts_with(request_path, "/stat")) {
 				handle_stat(request_path, req, rep);
@@ -65,13 +70,54 @@ namespace http {
 				return;
 			}
 
-			if (req.method.compare("PUT") == 0) {
+			if (req.method.compare("PUT") == 0 || req.method.compare("POST") == 0) {
 				handle_put(request_path, req, rep);
 				return;
 			}
 
 			rep = reply::stock_reply(reply::bad_request);
 		}
+
+#if defined ENABLE_STATIC
+		void request_handler::handle_static(std::string request_path, const request& req, reply& rep) {
+			// If path ends in slash (i.e. is a directory) then add "index.html".
+			if (request_path[request_path.size() - 1] == '/') {
+				request_path += "index.html";
+			}
+
+			// Determine the file extension.
+			std::size_t last_slash_pos = request_path.find_last_of("/");
+			std::size_t last_dot_pos = request_path.find_last_of(".");
+			std::string extension;
+
+			if (last_dot_pos != std::string::npos && last_dot_pos > last_slash_pos) {
+				extension = request_path.substr(last_dot_pos + 1);
+			}
+
+			// Open the file to send back.
+			std::string full_path = c_->static_directory() + request_path;
+			std::ifstream is(full_path.c_str(), std::ios::in | std::ios::binary);
+
+			LOG_INFO("looking for " << full_path << std::endl);
+
+			if (!is) {
+				rep = reply::stock_reply(reply::not_found);
+				return;
+			}
+
+			// Fill out the reply to be sent to the client.
+			rep.status = reply::ok;
+			char buf[512];
+
+			while (is.read(buf, sizeof(buf)).gcount() > 0) {
+				rep.content.append(buf, is.gcount());
+			}
+
+			rep.headers.push_back(header("Content-Length", boost::lexical_cast<std::string>(rep.content.size())));
+			rep.headers.push_back(header("Content-Type", mime_types::extension_to_type(extension)));
+		}
+
+#endif
 
 		void request_handler::handle_check(std::string request_path, const request& req, reply& rep) {
 			std::string blob_ref = request_path.substr(1);
@@ -83,7 +129,7 @@ namespace http {
 				return;
 			}
 
-			std::string full_path = doc_root_ + foundBlob->filePath();
+			std::string full_path = c_->directory() + foundBlob->filePath();
 
 			if (!boost::filesystem::exists(full_path)) {
 				LOG_INFO("file not found: " << full_path);
@@ -109,7 +155,7 @@ namespace http {
 #if defined ENABLE_DUMP
 			LOG_INFO(DUMP_BLOB(*foundBlob) << std::endl);
 #endif
-			std::string full_path = doc_root_ + foundBlob->filePath();
+			std::string full_path = foundBlob->filePath();
 			LOG_INFO("loading file from path " << full_path << std::endl);
 			std::ifstream is(full_path.c_str(), std::ios::in | std::ios::binary);
 
@@ -174,6 +220,9 @@ for (auto & pair : blobs) {
 		void request_handler::handle_put(std::string request_path, const request& req, reply& rep) {
 			LOG_INFO("handle_put called" << std::endl);
 			std::string body = req.content;
+
+			LOG_INFO("body: " << std::endl << body << std::endl);
+
 			std::string content_type = get_header(req.headers, "Content-Type");
 
 			if (content_type == "") {

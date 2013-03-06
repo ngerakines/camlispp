@@ -47,11 +47,10 @@ namespace blobserver {
 	std::string Murmur3::operator()(const char *s, size_t len) const {
 		uint32_t out[4];
 		MurmurHash3_x64_128(s, len, 0, out);
-
 		std::ostringstream ss;
 		ss << std::hex << std::uppercase << std::setfill( '0' );
 
-		for (uint32_t & value : out) {
+for (uint32_t & value : out) {
 			ss << std::setw( 2 ) << value;
 		}
 

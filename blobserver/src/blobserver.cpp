@@ -46,6 +46,7 @@
 #include <boost/serialization/list.hpp>
 #include <boost/serialization/assume_abstract.hpp>
 
+#include "config.h"
 #include "server.hpp"
 #include "Config.hpp"
 #include "BlobIndex.hpp"
@@ -55,16 +56,6 @@ namespace po = boost::program_options;
 
 using namespace blobserver;
 
-volatile bool running;
-
-void sighandler(int signum) {
-	std::cout << "Received signal " << signum << std::endl;
-
-	if (signum == SIGINT) {
-		running = false;
-	}
-}
-
 void save_blob_index(const BlobIndex &bi, const char * filename) {
 	// make an archive
 	std::ofstream ofs(filename);
@@ -72,7 +63,7 @@ void save_blob_index(const BlobIndex &bi, const char * filename) {
 	oa << bi;
 }
 
-int main(int argc, char **argv, char ** /* **ppenv */) {
+int main(int argc, char **argv, char **) {
 	po::options_description desc("Allowed options");
 	desc.add_options()
 	("help", "produce help message")
@@ -80,6 +71,9 @@ int main(int argc, char **argv, char ** /* **ppenv */) {
 	("ip", po::value<string>(), "The ip address to bind to")
 	("port", po::value<string>(), "The port to serve requests on")
 	("threads", po::value<int>(), "The number of threads to use")
+#if defined ENABLE_STATIC
+	("static_directory", po::value<string>(), "The directory to serve static files from")
+#endif
 	;
 	po::variables_map vm;
 	po::store(po::parse_command_line(argc, argv, desc), vm);
@@ -89,6 +83,16 @@ int main(int argc, char **argv, char ** /* **ppenv */) {
 	if (vm.count("directory")) {
 		config.directory(vm["directory"].as<string>());
 	}
+
+#if defined ENABLE_STATIC
+
+	if (vm.count("static_directory")) {
+		config.static_directory(vm["static_directory"].as<string>());
+	} else {
+		config.static_directory("./static/");
+	}
+
+#endif
 
 	if (vm.count("ip")) {
 		config.ip(vm["ip"].as<string>());
@@ -107,8 +111,6 @@ int main(int argc, char **argv, char ** /* **ppenv */) {
 		return 1;
 	}
 
-	running = true;
-	signal(SIGINT, sighandler);
 	// create some fake bytes
 	char buf[] = {0, 1, 2, 3, 4, 5};
 	char buf2[] = {5, 4, 3, 2, 1, 6, 7, 8, 9};
@@ -117,14 +119,13 @@ int main(int argc, char **argv, char ** /* **ppenv */) {
 	BlobIndex bi(&config);
 	bi.add_blob(&vec);
 	bi.add_blob(&vec2);
-
 	std::string filename(boost::archive::tmpdir());
 	filename += "/blobindex.txt";
 	save_blob_index(bi, filename.c_str());
 
 	try {
 		// Initialise the server.
-		http::server3::server s(&bi, config.ip().c_str(), config.port(), config.directory().c_str(), config.threads());
+		http::server3::server s(&config, &bi, config.ip().c_str(), config.port(), config.threads());
 		// Run the server until stopped.
 		s.run();
 

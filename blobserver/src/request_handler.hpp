@@ -40,17 +40,15 @@ namespace http {
 		class request_handler : private boost::noncopyable {
 			public:
 				/// Construct with a directory containing files to be served.
-				explicit request_handler(blobserver::BlobIndex *bi, const std::string& doc_root);
+				explicit request_handler(blobserver::Config *c, blobserver::BlobIndex *bi);
 
 				/// Handle a request and produce a reply.
 				void handle_request(const request& req, reply& rep);
 
 				blobserver::Header* parse_boundry_header(std::string header_value);
 			private:
+				blobserver::Config *c_;
 				blobserver::BlobIndex *bi_;
-
-				/// The directory containing the files to be served.
-				std::string doc_root_;
 
 				/// Perform URL-decoding on a string. Returns false if the encoding was
 				/// invalid.
@@ -69,6 +67,10 @@ namespace http {
 				void decode_query_string_blobs(std::vector<std::string>* blobs, std::string request_path);
 
 				std::string get_header(std::vector<header> headers, std::string name);
+
+#if defined ENABLE_STATIC
+				void handle_static(std::string request_path, const request& req, reply& rep);
+#endif
 
 		};
 

@@ -11,6 +11,8 @@
 
 #cmakedefine ENABLE_MD5
 
+#cmakedefine ENABLE_STATIC
+
 #if defined ENABLE_MD5
 #define CRYPTOPP_ENABLE_NAMESPACE_WEAK 1
 #endif

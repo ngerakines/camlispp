@@ -50,12 +50,13 @@ namespace blobserver {
 		std::stringstream ss;
 		ss << "Blob{filePath='" << filePath_ << "' size=" << size_ ;
 		ss << " hashes=[";
-
 		bool first = true;
-		for (auto &hash : hashes_) {
+
+for (auto & hash : hashes_) {
 			if (!first) {
 				ss << ", ";
 			}
+
 			ss << hash;
 			first = false;
 		}

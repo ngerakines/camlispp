@@ -7,6 +7,7 @@
 #include <boost/noncopyable.hpp>
 #include <boost/shared_ptr.hpp>
 
+#include "Config.hpp"
 #include "connection.hpp"
 #include "request_handler.hpp"
 #include "BlobIndex.hpp"
@@ -20,8 +21,7 @@ namespace http {
 			public:
 				/// Construct the server to listen on the specified TCP address and port, and
 				/// serve up files from the given directory.
-				explicit server(blobserver::BlobIndex *bi, const std::string& address, const std::string& port,
-				                const std::string& doc_root, std::size_t thread_pool_size);
+				explicit server(blobserver::Config *c, blobserver::BlobIndex *bi, const std::string& address, const std::string& port, std::size_t thread_pool_size);
 
 				/// Run the server's io_service loop.
 				void run();

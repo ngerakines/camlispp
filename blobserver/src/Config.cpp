@@ -45,5 +45,16 @@ namespace blobserver {
 	void Config::validate(bool validate) {
 		validate_ = validate;
 	}
+
+#if defined ENABLE_STATIC
+	void Config::static_directory(std::string static_directory) {
+		static_directory_ = static_directory;
+	}
+
+	std::string Config::static_directory() {
+		return static_directory_;
+	}
+#endif
+
 }
 

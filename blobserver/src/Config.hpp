@@ -2,6 +2,7 @@
 #define __BLOBSERVER_CONFIG_H__
 
 #include <string>
+#include "config.h"
 
 namespace blobserver {
 
@@ -26,12 +27,21 @@ namespace blobserver {
 			bool validate();
 			void validate(bool validate);
 
+#if defined ENABLE_STATIC
+			std::string static_directory();
+			void static_directory(std::string static_directory);
+#endif
+
 		private:
 			std::string directory_;
 			std::string ip_;
 			std::string port_;
 			int threads_;
 			bool validate_;
+#if defined ENABLE_STATIC
+			std::string static_directory_;
+#endif
+
 	};
 
 }
