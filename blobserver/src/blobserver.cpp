@@ -119,7 +119,7 @@ int main(int argc, char **argv, char ** /* **ppenv */) {
 	bi.add_blob(&vec2);
 
 	std::string filename(boost::archive::tmpdir());
-	filename += "/demofile.txt";
+	filename += "/blobindex.txt";
 	save_blob_index(bi, filename.c_str());
 
 	try {
