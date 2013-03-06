@@ -20,19 +20,15 @@
 ** THE SOFTWARE.
 */
 
-#include <signal.h>
-
-#include <iostream>
+#include <algorithm>
 #include <fstream>
+#include <iostream>
+#include <iterator>
 #include <string>
 #include <vector>
 
 #include <boost/program_options.hpp>
-#include <boost/filesystem/path.hpp>
-#include <boost/filesystem/fstream.hpp>
 #include <boost/tokenizer.hpp>
-#include <iostream>
-#include <string>
 #include <boost/asio.hpp>
 #include <boost/bind.hpp>
 #include <boost/lexical_cast.hpp>
@@ -46,17 +42,15 @@
 #include <boost/serialization/list.hpp>
 #include <boost/serialization/assume_abstract.hpp>
 
+#include <boost/filesystem/operations.hpp>
+#include <boost/filesystem/fstream.hpp>
+
 #include "config.h"
 #include "server.hpp"
 #include "Config.hpp"
 #include "BlobIndex.hpp"
 
-using namespace std;
-namespace po = boost::program_options;
-
-using namespace blobserver;
-
-void save_blob_index(const BlobIndex &bi, const char * filename) {
+void save_blob_index(const blobserver::BlobIndex &bi, const char * filename) {
 	// make an archive
 	std::ofstream ofs(filename);
 	boost::archive::text_oarchive oa(ofs);
@@ -64,42 +58,54 @@ void save_blob_index(const BlobIndex &bi, const char * filename) {
 }
 
 int main(int argc, char **argv, char **) {
-	po::options_description desc("Allowed options");
+	boost::program_options::options_description desc("Allowed options");
 	desc.add_options()
 	("help", "produce help message")
-	("directory", po::value<string>(), "The directory to save blobs in and serve them from")
-	("ip", po::value<string>(), "The ip address to bind to")
-	("port", po::value<string>(), "The port to serve requests on")
-	("threads", po::value<int>(), "The number of threads to use")
+	("directory", boost::program_options::value<std::string>(), "The directory to save blobs in and serve them from")
+	("ip", boost::program_options::value<std::string>(), "The ip address to bind to")
+	("port", boost::program_options::value<std::string>(), "The port to serve requests on")
+	("threads", boost::program_options::value<int>(), "The number of threads to use")
 #if defined ENABLE_STATIC
-	("static_directory", po::value<string>(), "The directory to serve static files from")
+	("static_directory", boost::program_options::value<std::string>(), "The directory to serve static files from")
+#endif
+#if defined ENABLE_DEBUG_LOAD
+	("load_directory", boost::program_options::value<std::string>(), "The directory to load data from")
 #endif
 	;
-	po::variables_map vm;
-	po::store(po::parse_command_line(argc, argv, desc), vm);
-	po::notify(vm);
-	Config config;
+	boost::program_options::variables_map vm;
+	boost::program_options::store(boost::program_options::parse_command_line(argc, argv, desc), vm);
+	boost::program_options::notify(vm);
+	blobserver::Config config;
 
 	if (vm.count("directory")) {
-		config.directory(vm["directory"].as<string>());
+		config.directory(vm["directory"].as<std::string>());
 	}
 
 #if defined ENABLE_STATIC
 
 	if (vm.count("static_directory")) {
-		config.static_directory(vm["static_directory"].as<string>());
+		config.static_directory(vm["static_directory"].as<std::string>());
+
 	} else {
 		config.static_directory("./static/");
 	}
 
 #endif
+#if defined ENABLE_DEBUG_LOAD
+	std::string load_directory = "";
+
+	if (vm.count("load_directory")) {
+		load_directory = vm["load_directory"].as<std::string>();
+	}
+
+#endif
 
 	if (vm.count("ip")) {
-		config.ip(vm["ip"].as<string>());
+		config.ip(vm["ip"].as<std::string>());
 	}
 
 	if (vm.count("port")) {
-		config.port(vm["port"].as<string>());
+		config.port(vm["port"].as<std::string>());
 	}
 
 	if (vm.count("threads")) {
@@ -107,18 +113,41 @@ int main(int argc, char **argv, char **) {
 	}
 
 	if (vm.count("help")) {
-		cout << desc << "\n";
+		std::cout << desc << std::endl;
 		return 1;
 	}
 
-	// create some fake bytes
-	char buf[] = {0, 1, 2, 3, 4, 5};
-	char buf2[] = {5, 4, 3, 2, 1, 6, 7, 8, 9};
-	std::vector<char> vec(buf, buf + sizeof(buf) / sizeof(buf[0]));
-	std::vector<char> vec2(buf2, buf2 + sizeof(buf2) / sizeof(buf2[0]));
-	BlobIndex bi(&config);
-	bi.add_blob(boost::optional<std::string>(), &vec);
-	bi.add_blob(boost::optional<std::string>(), &vec2);
+	blobserver::BlobIndex bi(&config);
+#if defined ENABLE_DEBUG_LOAD
+	boost::filesystem::path path(load_directory);
+
+	if (boost::filesystem::exists(path) && boost::filesystem::is_directory(path)) {
+		LOG_INFO("Loading files from " << path << std::endl);
+		typedef std::vector<boost::filesystem::path> vec;
+		vec v;
+		copy(boost::filesystem::directory_iterator(path), boost::filesystem::directory_iterator(), back_inserter(v));
+
+		for (auto & file: v) {
+			if (boost::filesystem::is_regular_file(file)) {
+				LOG_INFO("path=" << file << "; filename=" << file.filename() << std::endl);
+				std::ifstream is(file.c_str(), std::ios::in | std::ios::binary);
+
+				if (is) {
+					char buf[512];
+					std::string content;
+
+					while (is.read(buf, sizeof(buf)).gcount() > 0) {
+						content.append(buf, is.gcount());
+					}
+					LOG_INFO("content was read to be " << content.length() << std::endl);
+					std::vector<char> charvect(content.begin(), content.end());
+					bi.add_blob(boost::optional<std::string>(), &charvect);
+				}
+			}
+		}
+	}
+
+#endif
 	std::string filename(boost::archive::tmpdir());
 	filename += "/blobindex.txt";
 	save_blob_index(bi, filename.c_str());
@@ -130,7 +159,7 @@ int main(int argc, char **argv, char **) {
 		s.run();
 
 	} catch (std::exception& e) {
-		std::cerr << "exception: " << e.what() << "\n";
+		std::cerr << "exception: " << e.what() << std::endl;
 	}
 
 	return 0;

@@ -3,6 +3,8 @@
 
 #cmakedefine ENABLE_DEBUG
 
+#cmakedefine ENABLE_DEBUG_LOAD
+
 #cmakedefine ENABLE_DUMP
 
 #if defined ENABLE_DEBUG

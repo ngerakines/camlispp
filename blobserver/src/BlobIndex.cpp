@@ -1,5 +1,6 @@
 #include "BlobIndex.hpp"
 
+#include <assert.h>
 #include <string>
 #include <fstream>
 #include <iostream>
@@ -43,8 +44,13 @@ namespace blobserver {
 	boost::optional<Blob*> BlobIndex::add_blob(boost::optional<std::string> provided_hash, std::vector<char> *bytes, std::vector<HashType> hash_types) {
 		boost::mutex::scoped_lock lock(mutex_);
 
-		auto buffer = std::string(bytes->begin(), bytes->end()).c_str();
-		auto buffer_length = strlen(buffer);
+		assert(bytes != NULL);
+		assert(bytes->size() > 0);
+		auto sbuffer = std::string(bytes->begin(), bytes->end());
+		// assert(sbuffer != NULL);
+
+		auto buffer = sbuffer.c_str();
+		auto buffer_length = bytes->size();
 		std::string hash = CityHash()(buffer, buffer_length);
 		std::string path = create_path(hash);
 		Blob *b = new Blob(path);
@@ -116,7 +122,7 @@ namespace blobserver {
 		if (!boost::filesystem::exists(path)) {
 			LOG_INFO("Blob does not exist on disk, writing to " << path << std::endl);
 			std::ofstream fs(path.c_str(), std::ofstream::binary);
-			fs.write(buffer, strlen(buffer));
+			fs.write(buffer, buffer_length);
 			fs.close();
 		}
 
