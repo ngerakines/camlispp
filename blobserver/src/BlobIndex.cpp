@@ -24,7 +24,7 @@ namespace blobserver {
 		// NKG: This should be cleaned up.
 		std::set<Blob*> blobs;
 
-for (auto & entry : blobs_) {
+		for (auto & entry : blobs_) {
 			blobs.insert(entry.second);
 		}
 
@@ -73,10 +73,10 @@ for (auto & entry : blobs_) {
 			fs.close();
 		}
 
-for (HashType & hash_type : hash_types) {
+		for (HashType & hash_type : hash_types) {
 			switch (hash_type) {
-#if defined ENABLE_MD5
 
+#if defined ENABLE_MD5
 			case HashType::md5: {
 				std::string hash = MessageDigest5()(buffer, buffer_length);
 				BlobKey blob_key("md5", hash);
@@ -84,7 +84,6 @@ for (HashType & hash_type : hash_types) {
 				b->add_hash("md5-" + hash);
 				break;
 			}
-
 #endif
 
 			case HashType::sha1: {

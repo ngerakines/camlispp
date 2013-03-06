@@ -17,6 +17,27 @@ This project was kicked off to get me back into the world of c++. I've been foll
 
 # Blob Storage Daemon
 
+## Options and Configuration
+
+Some compile-time options include:
+
+* **ENABLE_DEBUG**: Enables general debugging. Without this, very little will be logged.
+* **ENABLE_DUMP**: Enables extra dumping of internal objects (blob index, blob, blob key, etc).
+* **ENABLE_MD5**: Enables use of md5 to has blobs, enabled by default. Can be turned off because md5 isn't that strong.
+* **ENABLE_STATIC**: Enables use of static site, mostly for debugging. This is enabled by default.
+
+Some run-time options include:
+
+```
+  --help                 produce help message
+  --directory arg        The directory to save blobs in and serve them from
+  --ip arg               The ip address to bind to
+  --port arg             The port to serve requests on
+  --threads arg          The number of threads to use
+  --static_directory arg The directory to serve static files from
+```
+
+
 ## Roadmap / TODO
 
 1. Create base HTTP server (done)
@@ -27,11 +48,12 @@ This project was kicked off to get me back into the world of c++. I've been foll
 1. Support upload resume
 1. Support blob enumeration (done)
 1. Add md5 and sha hashing (done)
-1. Improve blob storage (disk backed) and index storage (disk backed)
+1. Improve blob storage (disk backed) and index storage (disk backed) (done)
 1. Support p2p sync/replication operations
 1. Support sharding and conditional blob routing
 1. Support large files
 1. Support daemon configuration files
+1. Support static site, mostly for debugging (done)
 
 # Errata
 
