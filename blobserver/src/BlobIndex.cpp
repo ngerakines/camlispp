@@ -17,10 +17,14 @@ namespace blobserver {
 	BlobIndex::BlobIndex(Config *config) : config_(config) { }
 
 	BlobIndex::~BlobIndex() {
-for (auto & entry : blobs_) {
-			delete entry.second;
+		// NKG: This should be cleaned up.
+		std::set<Blob*> blobs;
+		for (auto & entry : blobs_) {
+			blobs.insert(entry.second);
 		}
-
+		for (auto iterator = blobs.begin(); iterator != blobs.end(); ++iterator) {
+			delete *iterator;
+		}
 		blobs_.clear();
 	}
 
@@ -32,7 +36,7 @@ for (auto & entry : blobs_) {
 	Blob* BlobIndex::add_blob(std::vector<char> *bytes, std::vector<HashType> hash_types) {
 		boost::mutex::scoped_lock lock(mutex_);
 		auto buffer = std::string(bytes->begin(), bytes->end()).c_str();
-		auto buffer_length = bytes->size();
+		auto buffer_length = strlen(buffer);
 		std::string hash = CityHash()(buffer, buffer_length);
 		Blob *b = new Blob(hash);
 		std::string full_path = config_->directory() + b ->filePath();

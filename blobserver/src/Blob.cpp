@@ -12,6 +12,10 @@ namespace blobserver {
 
 	Blob::Blob(std::string filePath) : filePath_(filePath), size_(0) { }
 
+	Blob::~Blob() {
+		hashes_.clear();
+	}
+
 	std::string Blob::filePath() {
 		return filePath_;
 	}

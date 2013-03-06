@@ -4,9 +4,14 @@
 #include <string>
 #include <boost/optional.hpp>
 
+#include "logger.hpp"
+
 namespace blobserver {
 
 	BlobKey::BlobKey(std::string hash_type, std::string hash_value) : hash_type_(hash_type), hash_value_(hash_value) {
+	}
+
+	BlobKey::~BlobKey() {
 	}
 
 	// NKG: There are two things that I'm not a fan of (a) exceptions and

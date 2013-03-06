@@ -31,6 +31,7 @@ namespace blobserver {
 	class Blob final {
 		public:
 			explicit Blob(std::string filePath);
+			~Blob();
 
 			std::string filePath();
 
