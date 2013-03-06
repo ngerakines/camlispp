@@ -25,8 +25,8 @@ This project was kicked off to get me back into the world of c++. I've been foll
 1. Support stat (done)
 1. Support upload (done, mostly)
 1. Support upload resume
-1. Support blob enumeration
-1. Add md5 and sha hashing
+1. Support blob enumeration (done)
+1. Add md5 and sha hashing (done)
 1. Improve blob storage (disk backed) and index storage (disk backed)
 1. Support p2p sync/replication operations
 1. Support sharding and conditional blob routing

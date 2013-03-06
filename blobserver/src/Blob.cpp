@@ -48,7 +48,7 @@ namespace blobserver {
 #if defined ENABLE_DUMP
 	std::ostream& Blob::dump(std::ostream& o) const {
 		std::stringstream ss;
-		ss << "Blob{ filePath='" << filePath_ << "' size=" << size_ ;
+		ss << "Blob{filePath='" << filePath_ << "' size=" << size_ ;
 		ss << " hashes=[";
 
 		bool first = true;
@@ -60,8 +60,7 @@ namespace blobserver {
 			first = false;
 		}
 
-		ss << "]";
-		ss << "}";
+		ss << "]}";
 		return o << ss.str();
 	}
 #endif

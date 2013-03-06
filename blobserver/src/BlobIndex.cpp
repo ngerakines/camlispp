@@ -3,6 +3,10 @@
 #include <string>
 #include <fstream>
 #include <iostream>
+#include <sstream>
+#include <algorithm>
+#include <iterator>
+#include <iomanip>
 #include <boost/filesystem/path.hpp>
 #include <boost/algorithm/string/predicate.hpp>
 #include <boost/foreach.hpp>
@@ -33,17 +37,35 @@ namespace blobserver {
 		return add_blob(bytes, {HashType::city, HashType::md5, HashType::sha1, HashType::sha256, HashType::murmur3});
 	}
 
+	std::string BlobIndex::create_path(std::string hash) {
+		std::string directory = config_->directory();
+		if (!boost::ends_with(directory, "/")) {
+			directory += "/";
+		}
+
+		// NKG: Please don't judge me for this.
+		std::string first = hash.substr(0, 3);
+		int first_int = atoi(first.c_str());
+
+		std::ostringstream ss;
+		ss << std::hex << std::uppercase << std::setfill('0') << first_int;
+		directory += ss.str() + "/";
+
+		boost::filesystem::create_directories(directory);
+		return directory + hash + ".dat";
+	}
+
 	Blob* BlobIndex::add_blob(std::vector<char> *bytes, std::vector<HashType> hash_types) {
 		boost::mutex::scoped_lock lock(mutex_);
 		auto buffer = std::string(bytes->begin(), bytes->end()).c_str();
 		auto buffer_length = strlen(buffer);
 		std::string hash = CityHash()(buffer, buffer_length);
-		Blob *b = new Blob(hash);
-		std::string full_path = config_->directory() + b ->filePath();
 
-		if (!boost::filesystem::exists(full_path)) {
-			LOG_INFO("Blob does not exist on disk, writing to " << full_path << std::endl);
-			std::ofstream fs(full_path.c_str(), std::ofstream::binary);
+		std::string path = create_path(hash);
+		Blob *b = new Blob(path);
+		if (!boost::filesystem::exists(path)) {
+			LOG_INFO("Blob does not exist on disk, writing to " << path << std::endl);
+			std::ofstream fs(path.c_str(), std::ofstream::binary);
 			fs.write(buffer, strlen(buffer));
 			fs.close();
 		}
