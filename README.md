@@ -25,6 +25,7 @@ Some compile-time options include:
 * **ENABLE_DUMP**: Enables extra dumping of internal objects (blob index, blob, blob key, etc).
 * **ENABLE_MD5**: Enables use of md5 to has blobs, enabled by default. Can be turned off because md5 isn't that strong.
 * **ENABLE_STATIC**: Enables use of static site, mostly for debugging. This is enabled by default.
+* **ENABLE_DEBUG_LOAD**: Enables a feature that will attempt to create blobs for all files in a given directory.
 
 Some run-time options include:
 
@@ -35,6 +36,7 @@ Some run-time options include:
   --port arg             The port to serve requests on
   --threads arg          The number of threads to use
   --static_directory arg The directory to serve static files from
+  --load_directory arg   The directory to load data from
 ```
 
 
@@ -44,7 +46,7 @@ Some run-time options include:
 1. Integrate cityhash (done)
 1. Support retreival of blobs by hash type and hash. (done)
 1. Support stat (done)
-1. Support upload (done, mostly)
+1. Support upload (done)
 1. Support upload resume
 1. Support blob enumeration (done)
 1. Add md5 and sha hashing (done)
@@ -63,7 +65,7 @@ Please use the following astyle config when contributing:
 
 To enable object dumping for debug, use the following options when generating build files:
 
-    cmake . -DENABLE_DEBUG=ON -DENABLE_DUMP=ON
+    cmake . -DENABLE_DEBUG=ON -DENABLE_DUMP=ON -DENABLE_DEBUG_LOAD=ON
 
 # License
 
