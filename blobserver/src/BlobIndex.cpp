@@ -17,7 +17,7 @@ namespace blobserver {
 	BlobIndex::BlobIndex(Config *config) : config_(config) { }
 
 	BlobIndex::~BlobIndex() {
-		for (auto &entry : blobs_) {
+for (auto & entry : blobs_) {
 			delete entry.second;
 		}
 
@@ -26,7 +26,7 @@ namespace blobserver {
 
 	// NKG: Still undecided on vector<char> vs char*
 	Blob* BlobIndex::add_blob(std::vector<char> *bytes) {
-		return add_blob(bytes, {HashType::city});
+		return add_blob(bytes, {HashType::city, HashType::md5, HashType::sha1, HashType::sha256, HashType::murmur3});
 	}
 
 	Blob* BlobIndex::add_blob(std::vector<char> *bytes, std::vector<HashType> hash_types) {
@@ -44,9 +44,10 @@ namespace blobserver {
 			fs.close();
 		}
 
-		for (HashType &hash_type : hash_types) {
+		for (HashType & hash_type : hash_types) {
 			switch (hash_type) {
 #if defined ENABLE_MD5
+
 			case HashType::md5: {
 				std::string hash = MessageDigest5()(buffer, buffer_length);
 				BlobKey blob_key("md5", hash);
@@ -54,7 +55,9 @@ namespace blobserver {
 				b->add_hash("md5-" + hash);
 				break;
 			}
+
 #endif
+
 			case HashType::sha1: {
 				std::string hash = Sha1()(buffer, buffer_length);
 				BlobKey blob_key("sha1", hash);
@@ -88,6 +91,7 @@ namespace blobserver {
 			}
 		}
 
+		LOG_INFO("Blob added " << std::endl << DUMP_BLOB(*b) << std::endl);
 		return b;
 	}
 
@@ -122,22 +126,27 @@ namespace blobserver {
 
 	void BlobIndex::paginate(std::vector<std::pair<BlobKey, Blob*>> *blobs, boost::optional<std::string> last, int count) {
 		std::map<BlobKey, Blob*>::iterator iterator;
+
 		if (last) {
 			boost::optional<BlobKey> b = create_blob_key(*last);
+
 			if (b) {
 				iterator = blobs_.lower_bound(*b);
+
 			} else {
 				iterator = blobs_.begin();
 			}
+
 		} else {
 			iterator = blobs_.begin();
 		}
-		for (; iterator != blobs_.end(); ++iterator) {
-				blobs->push_back(std::make_pair(iterator->first, iterator->second));
 
-				if (blobs->size() >= count) {
-					return;
-				}
+		for (; iterator != blobs_.end(); ++iterator) {
+			blobs->push_back(std::make_pair(iterator->first, iterator->second));
+
+			if (blobs->size() >= count) {
+				return;
+			}
 		}
 	}
 

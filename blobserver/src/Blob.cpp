@@ -27,9 +27,9 @@ namespace blobserver {
 		hashes_.insert(hash);
 	}
 
-	/* std::set<std::string> Blob::hashes() {
+	sset Blob::hashes() {
 		return hashes_;
-	} */
+	}
 
 	bool Blob::is_match(std::string hash) {
 		auto it = hashes_.find(hash);
@@ -44,7 +44,20 @@ namespace blobserver {
 #if defined ENABLE_DUMP
 	std::ostream& Blob::dump(std::ostream& o) const {
 		std::stringstream ss;
-		ss << "Blob{ base_hash=" << base_hash_ << " filePath='" << filePath_ << "' size=" << size_ << "}";
+		ss << "Blob{ filePath='" << filePath_ << "' size=" << size_ ;
+		ss << " hashes=[";
+
+		bool first = true;
+		for (auto &hash : hashes_) {
+			if (!first) {
+				ss << ", ";
+			}
+			ss << hash;
+			first = false;
+		}
+
+		ss << "]";
+		ss << "}";
 		return o << ss.str();
 	}
 #endif

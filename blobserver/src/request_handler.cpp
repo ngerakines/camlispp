@@ -144,24 +144,25 @@ namespace http {
 		}
 
 		void request_handler::handle_enumerate(std::string request_path, const request& req, reply& rep) {
-
 			std::vector<std::pair<BlobKey, Blob*>> blobs;
-
 			bi_->paginate(&blobs);
-
 			json_spirit::Object result;
 			json_spirit::Array stat;
-			for (auto &pair : blobs) {
+
+for (auto & pair : blobs) {
 				json_spirit::Object blob_value;
 				blob_value.push_back(json_spirit::Pair("blobRef", pair.first.blobref()));
 				blob_value.push_back(json_spirit::Pair("size", pair.second->size()));
 				stat.push_back(blob_value);
 			}
+
 			result.push_back(json_spirit::Pair("blobs", stat));
+
 			if (blobs.size() > 0) {
 				auto last = blobs.back();
 				result.push_back(json_spirit::Pair("continueAfter", last.first.blobref()));
 			}
+
 			result.push_back(json_spirit::Pair("canLongPoll", "false"));
 			rep.status = reply::ok;
 			rep.content = json_spirit::write(result);

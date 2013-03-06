@@ -2,12 +2,17 @@
 #include "Hash.hpp"
 
 #include <string>
+#include <sstream>
+#include <algorithm>
+#include <iterator>
+#include <iomanip>
 #include <boost/lexical_cast.hpp>
 #include "city.h"
 #include <cryptopp/sha.h>
 #include <cryptopp/md5.h>
 #include <cryptopp/filters.h>
 #include <cryptopp/hex.h>
+#include "MurmurHash3.h"
 
 namespace blobserver {
 
@@ -40,7 +45,17 @@ namespace blobserver {
 	}
 
 	std::string Murmur3::operator()(const char *s, size_t len) const {
-		return "";
+		uint32_t out[4];
+		MurmurHash3_x64_128(s, len, 0, out);
+
+		std::ostringstream ss;
+		ss << std::hex << std::uppercase << std::setfill( '0' );
+
+		for (uint32_t & value : out) {
+			ss << std::setw( 2 ) << value;
+		}
+
+		return ss.str();
 	}
 
 }
