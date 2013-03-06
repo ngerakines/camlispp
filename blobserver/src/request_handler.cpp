@@ -244,7 +244,7 @@ for (auto & pair : blobs) {
 
 					if (payload.size() > 0) {
 						LOG_INFO("payload is greater than 0" << std::endl);
-						bi_->add_blob(&payload);
+						bi_->add_blob(boost::optional<std::string>(), &payload);
 					}
 				}
 			}

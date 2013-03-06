@@ -117,8 +117,8 @@ int main(int argc, char **argv, char **) {
 	std::vector<char> vec(buf, buf + sizeof(buf) / sizeof(buf[0]));
 	std::vector<char> vec2(buf2, buf2 + sizeof(buf2) / sizeof(buf2[0]));
 	BlobIndex bi(&config);
-	bi.add_blob(&vec);
-	bi.add_blob(&vec2);
+	bi.add_blob(boost::optional<std::string>(), &vec);
+	bi.add_blob(boost::optional<std::string>(), &vec2);
 	std::string filename(boost::archive::tmpdir());
 	filename += "/blobindex.txt";
 	save_blob_index(bi, filename.c_str());

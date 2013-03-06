@@ -57,4 +57,12 @@ for (uint32_t & value : out) {
 		return ss.str();
 	}
 
+	boost::optional<HashType> hash_type_for_name(std::string hash_type_name) {
+		return boost::optional<HashType>();
+	}
+
+	boost::optional<std::string> name_for_hash_type(HashType hash_type) {
+		return boost::optional<std::string>();
+	}
+
 }

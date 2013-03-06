@@ -5,6 +5,7 @@
 #include <map>
 #include <vector>
 
+#include <boost/optional.hpp>
 #include <boost/thread/mutex.hpp>
 #include <boost/serialization/list.hpp>
 #include <boost/serialization/map.hpp>
@@ -25,8 +26,8 @@ namespace blobserver {
 
 			~BlobIndex();
 
-			Blob* add_blob(std::vector<char> *bytes);
-			Blob* add_blob(std::vector<char> *bytes, std::vector<HashType> hash_types);
+			boost::optional<Blob*> add_blob(boost::optional<std::string> provided_hash, std::vector<char> *bytes);
+			boost::optional<Blob*> add_blob(boost::optional<std::string> provided_hash, std::vector<char> *bytes, std::vector<HashType> hash_types);
 
 			bool empty();
 
