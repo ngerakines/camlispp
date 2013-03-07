@@ -49,6 +49,7 @@
 #include "server.hpp"
 #include "Config.hpp"
 #include "BlobIndex.hpp"
+#include "Sync.hpp"
 
 void save_blob_index(const blobserver::BlobIndex &bi, const char * filename) {
 	// make an archive
@@ -65,6 +66,8 @@ int main(int argc, char **argv, char **) {
 	("ip", boost::program_options::value<std::string>(), "The ip address to bind to")
 	("port", boost::program_options::value<std::string>(), "The port to serve requests on")
 	("threads", boost::program_options::value<int>(), "The number of threads to use")
+	("sync", boost::program_options::value<std::vector<std::string>>(), "One or more servers to sync with")
+	("sync-delay", boost::program_options::value<int>(), "The minimum amount of time in seconds between syncs")
 #if defined ENABLE_STATIC
 	("static_directory", boost::program_options::value<std::string>(), "The directory to serve static files from")
 #endif
@@ -108,8 +111,16 @@ int main(int argc, char **argv, char **) {
 		config.port(vm["port"].as<std::string>());
 	}
 
+	if (vm.count("sync")) {
+		config.sync_servers(vm["sync"].as<std::vector<std::string>>());
+	}
+
 	if (vm.count("threads")) {
 		config.threads(vm["threads"].as<int>());
+	}
+
+	if (vm.count("sync-delay")) {
+		config.sync_delay(vm["sync-delay"].as<int>());
 	}
 
 	if (vm.count("help")) {
@@ -139,6 +150,7 @@ int main(int argc, char **argv, char **) {
 					while (is.read(buf, sizeof(buf)).gcount() > 0) {
 						content.append(buf, is.gcount());
 					}
+
 					LOG_INFO("content was read to be " << content.length() << std::endl);
 					std::vector<char> charvect(content.begin(), content.end());
 					bi.add_blob(boost::optional<std::string>(), &charvect);
@@ -152,6 +164,8 @@ int main(int argc, char **argv, char **) {
 	filename += "/blobindex.txt";
 	save_blob_index(bi, filename.c_str());
 
+	blobserver::Sync sync(config.sync_delay(), config.sync_servers(), &bi);
+
 	try {
 		// Initialise the server.
 		http::server3::server s(&config, &bi, config.ip().c_str(), config.port(), config.threads());
@@ -161,6 +175,8 @@ int main(int argc, char **argv, char **) {
 	} catch (std::exception& e) {
 		std::cerr << "exception: " << e.what() << std::endl;
 	}
+
+	sync.stop();
 
 	return 0;
 }

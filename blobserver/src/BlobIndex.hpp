@@ -35,7 +35,6 @@ namespace blobserver {
 
 			Blob* get(std::string hash);
 
-			void paginate(std::vector<std::pair<BlobKey, Blob*>> *blobs);
 			void paginate(std::vector<std::pair<BlobKey, Blob*>> *blobs, boost::optional<std::string> last, int count);
 
 			std::string create_path(std::string hash);

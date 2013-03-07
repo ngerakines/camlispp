@@ -44,10 +44,12 @@ namespace http {
 			}
 
 #if defined ENABLE_STATIC
+
 			if (boost::starts_with(request_path, "/static/")) {
 				handle_static(request_path, req, rep);
 				return;
 			}
+
 #endif
 
 			if (boost::starts_with(request_path, "/stat")) {
@@ -97,7 +99,6 @@ namespace http {
 			// Open the file to send back.
 			std::string full_path = c_->static_directory() + request_path;
 			std::ifstream is(full_path.c_str(), std::ios::in | std::ios::binary);
-
 			LOG_INFO("looking for " << full_path << std::endl);
 
 			if (!is) {
@@ -191,20 +192,25 @@ namespace http {
 
 		void request_handler::handle_enumerate(std::string request_path, const request& req, reply& rep) {
 			std::vector<std::pair<BlobKey, Blob*>> blobs;
-			bi_->paginate(&blobs);
+			boost::optional<std::string> after = decode_query_string_after(request_path);
+			bi_->paginate(&blobs, after, 26);
 			json_spirit::Object result;
 			json_spirit::Array stat;
 
-for (auto & pair : blobs) {
-				json_spirit::Object blob_value;
-				blob_value.push_back(json_spirit::Pair("blobRef", pair.first.blobref()));
-				blob_value.push_back(json_spirit::Pair("size", pair.second->size()));
-				stat.push_back(blob_value);
+			int count = 0;
+			for (auto & pair : blobs) {
+				if (count < 25) {
+					json_spirit::Object blob_value;
+					blob_value.push_back(json_spirit::Pair("blobRef", pair.first.blobref()));
+					blob_value.push_back(json_spirit::Pair("size", pair.second->size()));
+					stat.push_back(blob_value);
+				}
+				count++;
 			}
 
 			result.push_back(json_spirit::Pair("blobs", stat));
 
-			if (blobs.size() > 0) {
+			if (blobs.size() > 25) {
 				auto last = blobs.back();
 				result.push_back(json_spirit::Pair("continueAfter", last.first.blobref()));
 			}
@@ -220,9 +226,7 @@ for (auto & pair : blobs) {
 		void request_handler::handle_put(std::string request_path, const request& req, reply& rep) {
 			LOG_INFO("handle_put called" << std::endl);
 			std::string body = req.content;
-
 			LOG_INFO("body: " << std::endl << body << std::endl);
-
 			std::string content_type = get_header(req.headers, "Content-Type");
 
 			if (content_type == "") {
@@ -329,6 +333,33 @@ for (auto & pair : blobs) {
 					}
 				}
 			}
+		}
+
+		boost::optional<std::string> request_handler::decode_query_string_after(std::string request_path) {
+			unsigned found = request_path.find("?");
+
+			if (found != std::string::npos) {
+				std::string query = request_path.substr(found + 1);
+				std::string input(query);
+				std::string::iterator begin = input.begin();
+				std::string::iterator end = input.end();
+				keys_and_values<std::string::iterator> p;
+				std::map<std::string, std::string> m;
+				bool result = qi::parse(begin, end, p, m);
+
+				if (result) {
+					std::map<std::string, std::string>::iterator iter;
+
+					for (iter = m.begin(); iter != m.end(); ++iter) {
+						LOG_INFO(iter->first << " = " << iter->second << std::endl);
+
+						if (boost::starts_with(iter->first, "after")) {
+							return boost::optional<std::string>(iter->second);
+						}
+					}
+				}
+			}
+			return boost::optional<std::string>();
 		}
 
 		bool request_handler::url_decode(const std::string& in, std::string& out) {

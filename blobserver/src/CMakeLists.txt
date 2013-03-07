@@ -26,5 +26,5 @@ ADD_LIBRARY(murmur_lib STATIC ${MURMUR_SRC_DIR}/MurmurHash3.cpp ${MURMUR_SRC_DIR
 # -Wall -Wextra
 add_definitions(-g -gstabs+)
 
-add_executable(blobserver blobserver.cpp Config.cpp BlobKey.cpp Blob.cpp BlobIndex.cpp Hash.cpp connection.cpp mime_types.cpp request_handler.cpp server.cpp reply.cpp request_parser.cpp request.hpp header.hpp boost-multipart-form.cpp header.cpp)
-TARGET_LINK_LIBRARIES(blobserver ${BOOST_SYS} ${BOOST_FS} ${BOOST_THR} ${BOOST_PO} ${CRYPTOPP} ${BOOST_SE} pthread cityhash_lib json_spirit_lib murmur_lib)
+add_executable(blobserver blobserver.cpp Config.cpp BlobKey.cpp Blob.cpp BlobIndex.cpp Hash.cpp connection.cpp mime_types.cpp request_handler.cpp server.cpp reply.cpp request_parser.cpp request.hpp header.hpp boost-multipart-form.cpp header.cpp Sync.cpp)
+TARGET_LINK_LIBRARIES(blobserver ${BOOST_SYS} ${BOOST_FS} ${BOOST_THR} ${BOOST_PO} ${CRYPTOPP} ${BOOST_SE} curl pthread cityhash_lib json_spirit_lib murmur_lib)

@@ -66,6 +66,8 @@ namespace http {
 
 				void decode_query_string_blobs(std::vector<std::string>* blobs, std::string request_path);
 
+				boost::optional<std::string> decode_query_string_after(std::string request_path);
+
 				std::string get_header(std::vector<header> headers, std::string name);
 
 #if defined ENABLE_STATIC

@@ -25,7 +25,7 @@ namespace blobserver {
 		// NKG: This should be cleaned up.
 		std::set<Blob*> blobs;
 
-		for (auto & entry : blobs_) {
+for (auto & entry : blobs_) {
 			blobs.insert(entry.second);
 		}
 
@@ -43,30 +43,29 @@ namespace blobserver {
 
 	boost::optional<Blob*> BlobIndex::add_blob(boost::optional<std::string> provided_hash, std::vector<char> *bytes, std::vector<HashType> hash_types) {
 		boost::mutex::scoped_lock lock(mutex_);
-
 		assert(bytes != NULL);
 		assert(bytes->size() > 0);
 		auto sbuffer = std::string(bytes->begin(), bytes->end());
 		// assert(sbuffer != NULL);
-
 		auto buffer = sbuffer.c_str();
 		auto buffer_length = bytes->size();
 		std::string hash = CityHash()(buffer, buffer_length);
 		std::string path = create_path(hash);
 		Blob *b = new Blob(path);
 		b->size(bytes->size());
-
 		std::vector<BlobKey> blob_keys;
-		for (HashType & hash_type : hash_types) {
-			switch (hash_type) {
 
+for (HashType & hash_type : hash_types) {
+			switch (hash_type) {
 #if defined ENABLE_MD5
+
 			case HashType::md5: {
 				std::string hash = MessageDigest5()(buffer, buffer_length);
 				BlobKey blob_key("md5", hash);
 				blob_keys.push_back(blob_key);
 				break;
 			}
+
 #endif
 
 			case HashType::sha1: {
@@ -101,20 +100,22 @@ namespace blobserver {
 		if (provided_hash) {
 			bool found = false;
 			auto provided_hash_blob_key = create_blob_key(*provided_hash);
+
 			if (provided_hash_blob_key) {
-				for (BlobKey &blob_key : blob_keys) {
+for (BlobKey & blob_key : blob_keys) {
 					if (blob_key.blobref() == *provided_hash) {
 						found = true;
 					}
 				}
 			}
+
 			if (found == false) {
 				LOG_ERROR("provided hash mismatch " << *provided_hash << std::endl);
 				return boost::optional<Blob*>();
 			}
 		}
 
-		for (BlobKey &blob_key : blob_keys) {
+for (BlobKey & blob_key : blob_keys) {
 			b->add_hash(blob_key.blobref());
 			blobs_[blob_key] = b;
 		}
@@ -170,10 +171,6 @@ namespace blobserver {
 	int BlobIndex::size() {
 		boost::mutex::scoped_lock lock(mutex_);
 		return (int) blobs_.size();
-	}
-
-	void BlobIndex::paginate(std::vector<std::pair<BlobKey, Blob*>> *blobs) {
-		paginate(blobs, boost::optional<std::string>(), 25);
 	}
 
 	void BlobIndex::paginate(std::vector<std::pair<BlobKey, Blob*>> *blobs, boost::optional<std::string> last, int count) {
