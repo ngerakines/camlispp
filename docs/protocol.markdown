@@ -37,7 +37,7 @@ Highlights include:
 : A compilation or summary of a blob.
 
 **digest type**
-: bar
+: A type of hashing algorithm. Examples include "sh1", "md5", "murmur3" and "ch32".
 
 **base url**
 : The base entry point of the blob server.

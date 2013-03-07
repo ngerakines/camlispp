@@ -25,7 +25,7 @@ namespace blobserver {
 		// NKG: This should be cleaned up.
 		std::set<Blob*> blobs;
 
-for (auto & entry : blobs_) {
+		for (auto & entry : blobs_) {
 			blobs.insert(entry.second);
 		}
 
@@ -38,7 +38,7 @@ for (auto & entry : blobs_) {
 
 	// NKG: Still undecided on vector<char> vs char*
 	boost::optional<Blob*> BlobIndex::add_blob(boost::optional<std::string> provided_hash, std::vector<char> *bytes) {
-		return add_blob(provided_hash, bytes, {HashType::city, HashType::md5, HashType::sha1, HashType::sha256, HashType::murmur3});
+		return add_blob(provided_hash, bytes, {HashType::sha1, HashType::sha256});
 	}
 
 	boost::optional<Blob*> BlobIndex::add_blob(boost::optional<std::string> provided_hash, std::vector<char> *bytes, std::vector<HashType> hash_types) {
@@ -49,51 +49,29 @@ for (auto & entry : blobs_) {
 		// assert(sbuffer != NULL);
 		auto buffer = sbuffer.c_str();
 		auto buffer_length = bytes->size();
-		std::string hash = CityHash()(buffer, buffer_length);
+		std::string hash = Sha256()(buffer, buffer_length);
 		std::string path = create_path(hash);
 		Blob *b = new Blob(path);
 		b->size(bytes->size());
 		std::vector<BlobKey> blob_keys;
 
-for (HashType & hash_type : hash_types) {
+		for (HashType & hash_type : hash_types) {
 			switch (hash_type) {
-#if defined ENABLE_MD5
 
-			case HashType::md5: {
-				std::string hash = MessageDigest5()(buffer, buffer_length);
-				BlobKey blob_key("md5", hash);
-				blob_keys.push_back(blob_key);
-				break;
-			}
+				case HashType::sha1: {
+					std::string hash = Sha1()(buffer, buffer_length);
+					BlobKey blob_key("sha1", hash);
+					blob_keys.push_back(blob_key);
+					break;
+				}
 
-#endif
+				case HashType::sha256: {
+					std::string hash = Sha256()(buffer, buffer_length);
+					BlobKey blob_key("sha256", hash);
+					blob_keys.push_back(blob_key);
+					break;
+				}
 
-			case HashType::sha1: {
-				std::string hash = Sha1()(buffer, buffer_length);
-				BlobKey blob_key("sha1", hash);
-				blob_keys.push_back(blob_key);
-				break;
-			}
-
-			case HashType::sha256: {
-				std::string hash = Sha256()(buffer, buffer_length);
-				BlobKey blob_key("sha256", hash);
-				blob_keys.push_back(blob_key);
-				break;
-			}
-
-			case HashType::city: {
-				BlobKey blob_key("ch32", hash);
-				blob_keys.push_back(blob_key);
-				break;
-			}
-
-			case HashType::murmur3: {
-				std::string hash = Murmur3()(buffer, buffer_length);
-				BlobKey blob_key("murmur3", hash);
-				blob_keys.push_back(blob_key);
-				break;
-			}
 			}
 		}
 
@@ -102,7 +80,7 @@ for (HashType & hash_type : hash_types) {
 			auto provided_hash_blob_key = create_blob_key(*provided_hash);
 
 			if (provided_hash_blob_key) {
-for (BlobKey & blob_key : blob_keys) {
+				for (BlobKey & blob_key : blob_keys) {
 					if (blob_key.blobref() == *provided_hash) {
 						found = true;
 					}
@@ -115,7 +93,7 @@ for (BlobKey & blob_key : blob_keys) {
 			}
 		}
 
-for (BlobKey & blob_key : blob_keys) {
+		for (BlobKey & blob_key : blob_keys) {
 			b->add_hash(blob_key.blobref());
 			blobs_[blob_key] = b;
 		}
@@ -140,10 +118,7 @@ for (BlobKey & blob_key : blob_keys) {
 
 		// NKG: Please don't judge me for this.
 		std::string first = hash.substr(0, 3);
-		int first_int = atoi(first.c_str());
-		std::ostringstream ss;
-		ss << std::hex << std::uppercase << std::setfill('0') << first_int;
-		directory += ss.str() + "/";
+		directory += first + "/";
 		boost::filesystem::create_directories(directory);
 		return directory + hash + ".dat";
 	}

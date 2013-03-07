@@ -10,24 +10,9 @@
 namespace blobserver {
 
 enum class HashType : int {
-	    city = 1,
-	    md5 = 2,
-	    sha1 = 4,
-	    sha256 = 8,
-	    murmur3 = 16
+	    sha1 = 1,
+	    sha256 = 2
 	};
-
-	class CityHash {
-		public:
-			std::string operator()(const char *s, size_t len) const;
-	};
-
-#if defined ENABLE_MD5
-	class MessageDigest5 {
-		public:
-			std::string operator()(const char *s, size_t len) const;
-	};
-#endif
 
 	class Sha1 {
 		public:
@@ -38,12 +23,6 @@ enum class HashType : int {
 		public:
 			std::string operator()(const char *s, size_t len) const;
 	};
-
-	class Murmur3 {
-		public:
-			std::string operator()(const char *s, size_t len) const;
-	};
-
 
 	boost::optional<HashType> hash_type_for_name(std::string hash_type_name);
 
