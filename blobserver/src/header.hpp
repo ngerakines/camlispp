@@ -13,21 +13,21 @@ namespace http {
 
 			public:
 
-				header();
+				explicit header();
 
 				explicit header(std::string name, std::string value);
 
-				std::string name();
+				std::string name() const;
 
 				void name(std::string name);
 
 				void name(char chr);
 
-				std::string value();
+				std::string value() const;
 
 				void value(std::string value);
 
-				void value(char chr) ;
+				void value(char chr);
 
 			private:
 				std::string name_;

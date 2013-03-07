@@ -14,7 +14,7 @@ namespace http {
 		header::header(std::string name, std::string value) : name_(name), value_(value) {
 		}
 
-		std::string header::name() {
+		std::string header::name() const {
 			return name_;
 		}
 
@@ -26,7 +26,7 @@ namespace http {
 			name_.push_back(chr);
 		}
 
-		std::string header::value() {
+		std::string header::value() const {
 			return value_;
 		}
 

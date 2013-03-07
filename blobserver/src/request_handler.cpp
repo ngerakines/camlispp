@@ -36,6 +36,11 @@ namespace http {
 			}
 
 			LOG_INFO("request_path = " << request_path << std::endl);
+			LOG_INFO("request method = " << req.method << std::endl);
+			LOG_INFO("request headers = "<< std::endl);
+			for (auto &h : req.headers) {
+				LOG_INFO(h.name() << "=" << h.value() << std::endl);
+			}
 
 			// Request path must be absolute and not contain "..".
 			if (request_path.empty() || request_path[0] != '/' || request_path.find("..") != std::string::npos) {

@@ -1,0 +1,41 @@
+$ curl -v --header "accept: text/x-camli-configuration" http://127.0.0.1:3179/
+* About to connect() to 127.0.0.1 port 3179 (#0)
+*   Trying 127.0.0.1...
+* connected
+* Connected to 127.0.0.1 (127.0.0.1) port 3179 (#0)
+> GET / HTTP/1.1
+> User-Agent: curl/7.27.0
+> Host: 127.0.0.1:3179
+> accept: text/x-camli-configuration
+> 
+< HTTP/1.1 200 OK
+< Content-Type: text/javascript
+< Date: Thu, 07 Mar 2013 07:10:55 GMT
+< Transfer-Encoding: chunked
+< 
+{
+  "blobRoot": "/bs-and-maybe-also-index/",
+  "directoryHelper": "/ui/tree/",
+  "downloadHelper": "/ui/download/",
+  "jsonSignRoot": "/sighelper/",
+  "ownerName": "Nick Gerakines",
+  "publishRoots": {},
+  "searchRoot": "/my-search/",
+  "signing": {
+    "publicKey": "/sighelper/camli/sha1-50e2c69a32e53d70bc3293ce45a6b0fea44ba09b",
+    "publicKeyBlobRef": "sha1-50e2c69a32e53d70bc3293ce45a6b0fea44ba09b",
+    "publicKeyId": "B0A609702EF27257",
+    "signHandler": "/sighelper/camli/sig/sign",
+    "verifyHandler": "/sighelper/camli/sig/verify"
+  },
+  "storageGeneration": "dc0d5adfe6428c58238e34f98e3c1c5d94ff2c18",
+  "storageInitTime": "2013-03-04T06:13:18Z",
+  "syncHandlers": [
+    {
+      "from": "/bs/",
+      "to": "/index-sqlite/"
+    }
+  ],
+  "uploadHelper": "/ui/?camli.mode=uploadhelper"
+* Connection #0 to host 127.0.0.1 left intact
+}* Closing connection #0
