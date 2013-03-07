@@ -5,6 +5,7 @@
 #include <string>
 
 #include <curl/curl.h>
+#include <boost/algorithm/string/predicate.hpp>
 
 #include "json_spirit_reader.h"
 #include "json_spirit_writer.h"
@@ -82,6 +83,19 @@ namespace blobserver {
 			if (content) {
 				boost::optional<SyncEnumeration> sync_enumeration = parse_sync_enumeration(*content);
 				if (sync_enumeration) {
+					for (std::string &blob_ref : (*sync_enumeration).blob_refs()) {
+						LOG_INFO("fetching blob_ref " << blob_ref << std::endl);
+
+						Blob *blob = bi_->get(blob_ref);
+						if (blob != NULL) {
+							LOG_INFO("blob exists! " << std::endl);
+						} else {
+							LOG_INFO("blob does not exist! " << std::endl);
+
+							fetch_blob(host, blob_ref);
+						}
+					}
+
 					boost::optional<std::string> current_last = (*sync_enumeration).last();
 					if (current_last) {
 						last = *current_last;
@@ -118,11 +132,22 @@ namespace blobserver {
 		curl_easy_cleanup(curl);
 
 		if (result == CURLE_OK) {
-			LOG_INFO("got back " << std::endl << buffer << std::endl);
+			// LOG_INFO("got back " << std::endl << buffer << std::endl);
 			return boost::optional<std::string>(buffer);
 		}
 		LOG_ERROR("Curl result was not CURL_OK: " << result << " - " << errorBuffer << std::endl);
 		return boost::optional<std::string>();
+	}
+
+	void Sync::fetch_blob(std::string host, std::string blob_ref) {
+		std::string url = build_blob_url(host, blob_ref);
+		LOG_INFO("fetching url " << url << std::endl);
+
+		boost::optional<std::string> blob_ref_content = fetch_blob_refs(url);
+		if (blob_ref_content) {
+			std::vector<char> charvect((*blob_ref_content).begin(), (*blob_ref_content).end());
+			bi_->add_blob(boost::optional<std::string>(blob_ref), &charvect);
+		}
 	}
 
 	boost::optional<SyncEnumeration> Sync::parse_sync_enumeration(std::string content) {
@@ -170,6 +195,16 @@ namespace blobserver {
 		if (last.length() > 0) {
 			ss << "?after=" << last;
 		}
+		return ss.str();
+	}
+
+	std::string Sync::build_blob_url(std::string host, std::string blob_ref) {
+		std::stringstream ss;
+		ss << host;
+		if (!boost::ends_with(host, "/")) {
+			ss << "/";
+		}
+		ss << blob_ref;
 		return ss.str();
 	}
 

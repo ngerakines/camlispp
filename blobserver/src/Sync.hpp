@@ -50,6 +50,8 @@ namespace blobserver {
 			boost::optional<SyncEnumeration> parse_sync_enumeration(std::string content);
 			boost::optional<std::string> fetch_blob_refs(std::string url);
 			std::string build_enumeration_url(std::string host, std::string last);
+			void fetch_blob(std::string host, std::string blob_ref);
+			std::string build_blob_url(std::string host, std::string blob_ref);
 	};
 
 	int writer(char *data, size_t size, size_t nmemb, std::string *buffer);

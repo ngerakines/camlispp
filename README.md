@@ -57,6 +57,13 @@ Some run-time options include:
 1. Support daemon configuration files
 1. Support static site, mostly for debugging (done)
 
+## Testing
+
+    $ ./blobserver/src/blobserver --port 8081 --directory /home/ngerakines/projects/camlispp/blobserver/data1/ --static_directory /home/ngerakines/projects/camlispp/blobserver --load_directory /home/ngerakines/projects/camlispp/blobserver/src/
+
+    $ ./blobserver/src/blobserver --port 8082 --directory /home/ngerakines/projects/camlispp/blobserver/data2/ --static_directory /home/ngerakines/projects/camlispp/blobserver --sync http://127.0.0.1:8081
+
+
 # Errata
 
 Please use the following astyle config when contributing:
