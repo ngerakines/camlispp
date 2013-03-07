@@ -47,13 +47,13 @@ Some run-time options include:
 1. Support retreival of blobs by hash type and hash. (done)
 1. Support stat (done)
 1. Support upload (done)
-1. Support upload resume
+1. Support upload resume (skipped)
 1. Support blob enumeration (done)
 1. Add md5 and sha hashing (done)
 1. Improve blob storage (disk backed) and index storage (disk backed) (done)
-1. Support p2p sync/replication operations
-1. Support sharding and conditional blob routing
-1. Support large files
+1. Support p2p sync/replication operations (done)
+1. Support sharding and conditional blob routing (skipped)
+1. Support large files (skipped)
 1. Support daemon configuration files
 1. Support static site, mostly for debugging (done)
 
