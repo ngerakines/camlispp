@@ -4,7 +4,6 @@
 #include <sstream>
 #include <string>
 
-#include <curl/curl.h>
 #include <boost/algorithm/string/predicate.hpp>
 
 #include "json_spirit_reader.h"
@@ -58,11 +57,8 @@ namespace blobserver {
 	void Sync::run() {
 		curl_global_init(CURL_GLOBAL_ALL);
 
-		LOG_INFO("sync running, wait=" << wait_ << std::endl);
 		while (!stopRequested_) {
 			if (++tick_ >= wait_) {
-				LOG_INFO("tick" << std::endl);
-
 				for (std::string &host : hosts_) {
 					sync_host(host);
 				}
@@ -76,23 +72,23 @@ namespace blobserver {
 	void Sync::sync_host(std::string host) {
 		bool get_more = true;
 		std::string last = "";
+		CURL *curl = curl_easy_init();
+		curl_easy_setopt(curl, CURLOPT_USERAGENT, "blobserver/1.0.0");
+		curl_easy_setopt(curl, CURLOPT_NOSIGNAL, 1);
+		curl_easy_setopt(curl, CURLOPT_HEADER, 0);
+		curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1);
+		curl_easy_setopt(curl, CURLOPT_FRESH_CONNECT, 0);
+		curl_easy_setopt(curl, CURLOPT_TIMEOUT, 5);
 		while (get_more) {
 			std::string url = build_enumeration_url(host, last);
-			LOG_INFO("getting url " << url << std::endl);
-			boost::optional<std::string> content = fetch_blob_refs(url);
+			boost::optional<std::string> content = fetch_url(curl, url);
 			if (content) {
 				boost::optional<SyncEnumeration> sync_enumeration = parse_sync_enumeration(*content);
 				if (sync_enumeration) {
 					for (std::string &blob_ref : (*sync_enumeration).blob_refs()) {
-						LOG_INFO("fetching blob_ref " << blob_ref << std::endl);
-
 						Blob *blob = bi_->get(blob_ref);
-						if (blob != NULL) {
-							LOG_INFO("blob exists! " << std::endl);
-						} else {
-							LOG_INFO("blob does not exist! " << std::endl);
-
-							fetch_blob(host, blob_ref);
+						if (blob == NULL) {
+							fetch_blob(curl, host, blob_ref);
 						}
 					}
 
@@ -109,19 +105,16 @@ namespace blobserver {
 				get_more = false;
 			}
 		}
+		curl_easy_cleanup(curl);
+		// delete curl;
 	}
  
-	boost::optional<std::string> Sync::fetch_blob_refs(std::string url) {
+	boost::optional<std::string> Sync::fetch_url(CURL *curl, std::string url) {
+		LOG_INFO("fetching url " << url << std::endl);
+
 		std::string buffer;
 		char errorBuffer[CURL_ERROR_SIZE];
 
-		CURL *curl = curl_easy_init();
-		curl_easy_setopt(curl, CURLOPT_USERAGENT, "blobserver/1.0.0");
-		curl_easy_setopt(curl, CURLOPT_NOSIGNAL, 1);
-		curl_easy_setopt(curl, CURLOPT_HEADER, 0);
-		curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1);
-		curl_easy_setopt(curl, CURLOPT_FRESH_CONNECT, 1);
-		curl_easy_setopt(curl, CURLOPT_TIMEOUT, 5);
 		curl_easy_setopt(curl, CURLOPT_ERRORBUFFER, errorBuffer);
 		curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
 		curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, writer);
@@ -129,21 +122,20 @@ namespace blobserver {
 
 		CURLcode result = curl_easy_perform(curl);
 
-		curl_easy_cleanup(curl);
+		curl_easy_reset(curl);
 
 		if (result == CURLE_OK) {
-			// LOG_INFO("got back " << std::endl << buffer << std::endl);
 			return boost::optional<std::string>(buffer);
 		}
 		LOG_ERROR("Curl result was not CURL_OK: " << result << " - " << errorBuffer << std::endl);
 		return boost::optional<std::string>();
 	}
 
-	void Sync::fetch_blob(std::string host, std::string blob_ref) {
+	void Sync::fetch_blob(CURL *curl, std::string host, std::string blob_ref) {
 		std::string url = build_blob_url(host, blob_ref);
 		LOG_INFO("fetching url " << url << std::endl);
 
-		boost::optional<std::string> blob_ref_content = fetch_blob_refs(url);
+		boost::optional<std::string> blob_ref_content = fetch_url(curl, url);
 		if (blob_ref_content) {
 			std::vector<char> charvect((*blob_ref_content).begin(), (*blob_ref_content).end());
 			bi_->add_blob(boost::optional<std::string>(blob_ref), &charvect);

@@ -155,6 +155,7 @@ int main(int argc, char **argv, char **) {
 					std::vector<char> charvect(content.begin(), content.end());
 					bi.add_blob(boost::optional<std::string>(), &charvect);
 				}
+				is.close();
 			}
 		}
 	}

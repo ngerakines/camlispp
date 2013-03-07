@@ -8,6 +8,8 @@
 #include <boost/thread/thread.hpp>
 #include <boost/optional.hpp>
 
+#include <curl/curl.h>
+
 #include "BlobIndex.hpp"
 
 namespace blobserver {
@@ -48,9 +50,9 @@ namespace blobserver {
 			void run();
 			void sync_host(std::string host);
 			boost::optional<SyncEnumeration> parse_sync_enumeration(std::string content);
-			boost::optional<std::string> fetch_blob_refs(std::string url);
+			boost::optional<std::string> fetch_url(CURL *curl, std::string url);
+			void fetch_blob(CURL *curl, std::string host, std::string blob_ref);
 			std::string build_enumeration_url(std::string host, std::string last);
-			void fetch_blob(std::string host, std::string blob_ref);
 			std::string build_blob_url(std::string host, std::string blob_ref);
 	};
 
