@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 #include <utility>
+#include <sstream>
 
 namespace http {
 	namespace server3 {
@@ -38,5 +39,19 @@ namespace http {
 			value_.push_back(chr);
 		}
 
+#if defined ENABLE_DUMP
+	std::ostream& header::dump(std::ostream& o) const {
+		std::stringstream ss;
+		ss << "header{key='" << name() << "' value='" << value() << "'}";
+		return o << ss.str();
+	}
+#endif
+
 	}
 }
+
+#if defined ENABLE_DUMP
+std::ostream& operator<<(std::ostream& o, const http::server3::header& h) {
+	return h.dump(o);
+}
+#endif

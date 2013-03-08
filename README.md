@@ -60,9 +60,9 @@ Some run-time options include:
 
 ## Testing
 
-    $ ./blobserver/src/blobserver --port 8081 --directory /home/ngerakines/projects/camlispp/blobserver/data1/ --static_directory /home/ngerakines/projects/camlispp/blobserver --load_directory /home/ngerakines/projects/camlispp/blobserver/src/ --sync http://127.0.0.1:8082
+    $ ./blobserver/src/blobserver --port 8081 --directory /home/ngerakines/tmp/source/data1/ --load_directory /home/ngerakines/tmp/source --sync http://127.0.0.1:8082 --sync-delay 30
 
-    $ ./blobserver/src/blobserver --port 8082 --directory /home/ngerakines/projects/camlispp/blobserver/data2/ --static_directory /home/ngerakines/projects/camlispp/blobserver
+    $ ./blobserver/src/blobserver --port 8082 --directory /home/ngerakines/tmp/source/data2/
 
 
 # Errata

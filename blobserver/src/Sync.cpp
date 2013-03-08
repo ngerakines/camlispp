@@ -64,6 +64,7 @@ namespace blobserver {
 					sync_host(sync_config);
 				}
 				tick_ = 0;
+				LOG_INFO("sync sleeping" << std::endl);
 			}
 
 			sleep(1);
@@ -126,12 +127,15 @@ namespace blobserver {
 					for (auto &pair : blobs) {
 						check_blob_refs.insert(pair.first.blobref());
 					}
+					LOG_INFO("check_blob_refs: " << check_blob_refs);
 					std::string stat_request_body = stat_request(blobs);
 					std::string url = build_stat_url(sync_config.host());
 					boost::optional<std::string> content = fetch_url(curl, url, stat_request_body);
 					if (content) {
+						LOG_INFO("content for url " << url << ": " << std::endl << (*content) << std::endl);
 						boost::optional<SyncEnumeration> sync_enumeration = parse_sync_enumeration(*content);
 						if (sync_enumeration) {
+							LOG_INFO("sync_enumeration blob_refs: " << (*sync_enumeration).blob_refs() << std::endl);
 							for (std::string &blob_ref : (*sync_enumeration).blob_refs()) {
 								check_blob_refs.erase(blob_ref);
 							}
@@ -203,7 +207,7 @@ namespace blobserver {
 
 	std::string Sync::stat_request(std::vector<std::pair<BlobKey, Blob*>> blobs) {
 		std::stringstream ss;
-		ss << "camliversion=" << CAMLI_VERSION << "&";
+		ss << "camliversion=" << CAMLI_VERSION;
 		int n = 1;
 		for (auto &pair : blobs) {
 			ss << "&blob" << n++ << "=" << pair.first.blobref();

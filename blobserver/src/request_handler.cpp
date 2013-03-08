@@ -46,10 +46,7 @@ namespace http {
 
 			LOG_INFO(" - request_path = " << request_path << std::endl);
 			LOG_INFO(" - request method = " << req.method << std::endl);
-			LOG_INFO(" - request headers:"<< std::endl);
-			for (auto &h : req.headers) {
-				LOG_INFO("   - " << h.name() << "=" << h.value() << std::endl);
-			}
+			LOG_INFO(" - request headers:" << req.headers << std::endl);
 
 			// Request path must be absolute and not contain "..".
 			if (request_path.empty() || request_path[0] != '/' || request_path.find("..") != std::string::npos) {
@@ -344,16 +341,23 @@ namespace http {
 				decode_query_string_blobs(&blobs, req.content);
 			}
 
+			LOG_INFO("blobs parsed from request: " << blobs << std::endl);
+			if (blobs.size() == 0) {
+				LOG_INFO("request:" << std::endl << req.content << std::endl);
+			}
+
 			json_spirit::Object result;
 			json_spirit::Array stat;
 			BOOST_FOREACH(std::string blob, blobs) {
 				std::cout << blob << std::endl;
 				Blob *foundBlob = bi_->get(blob);
 				LOG_INFO("blob exists? " << (foundBlob != NULL) << std::endl);
-				json_spirit::Object blob_value;
-				blob_value.push_back(json_spirit::Pair("blobRef", blob));
-				blob_value.push_back(json_spirit::Pair("size", foundBlob->size()));
-				stat.push_back(blob_value);
+				if (foundBlob != NULL) {
+					json_spirit::Object blob_value;
+					blob_value.push_back(json_spirit::Pair("blobRef", blob));
+					blob_value.push_back(json_spirit::Pair("size", foundBlob->size()));
+					stat.push_back(blob_value);
+				}
 			}
 			result.push_back(json_spirit::Pair("stat", stat));
 			result.push_back(json_spirit::Pair("maxUploadSize", 1048576));

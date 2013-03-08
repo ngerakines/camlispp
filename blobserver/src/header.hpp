@@ -2,9 +2,14 @@
 #ifndef HTTP_SERVER3_HEADER_HPP
 #define HTTP_SERVER3_HEADER_HPP
 
+#include "config.h"
+
 #include <string>
 #include <vector>
 #include <utility>
+#if defined ENABLE_DUMP
+#include <iostream>
+#endif
 
 namespace http {
 	namespace server3 {
@@ -29,6 +34,10 @@ namespace http {
 
 				void value(char chr);
 
+#if defined ENABLE_DUMP
+				std::ostream& dump(std::ostream& o) const;
+#endif
+
 			private:
 				std::string name_;
 				std::string value_;
@@ -37,5 +46,9 @@ namespace http {
 
 	}
 }
+
+#if defined ENABLE_DUMP
+std::ostream& operator<<(std::ostream& o, const http::server3::header& h);
+#endif
 
 #endif

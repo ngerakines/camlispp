@@ -5,6 +5,9 @@
 #include <string>
 #include <vector>
 
+#include <boost/range/adaptors.hpp>
+#include <boost/algorithm/string/erase.hpp>
+
 namespace blobserver {
 
 	MultiPartFormData::MultiPartFormData(std::string boundry, std::string input) {
@@ -30,14 +33,13 @@ namespace blobserver {
 				std::vector<std::string>::reverse_iterator chunk_iter;
 				bool handled_last = false;
 
-				for (chunk_iter = chunk_vector.rbegin(); chunk_iter != chunk_vector.rend(); ++chunk_iter) {
+				for (std::string &chunk : boost::adaptors::reverse(chunk_vector)) {
 					if (handled_last) {
-						part->add_header(*chunk_iter);
-
+						part->add_header(chunk);
 					} else {
-						part->payload(*chunk_iter);
+						boost::erase_last(chunk, "\r\n");
+						part->payload(chunk);
 					}
-
 					handled_last = true;
 				}
 

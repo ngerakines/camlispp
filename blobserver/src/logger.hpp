@@ -1,9 +1,8 @@
 #ifndef LOGGER_HPP_INCLUDED
 #define LOGGER_HPP_INCLUDED
 
-#include <iostream>
-
 #include "config.h"
+#include "prettyprint.hpp"
 
 #if defined ENABLE_DUMP
 #define LOG_INFO(X) std::cout << X;
