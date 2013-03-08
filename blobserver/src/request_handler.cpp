@@ -6,10 +6,19 @@
 #include <boost/algorithm/string/predicate.hpp>
 #include <boost/foreach.hpp>
 #include <boost/filesystem.hpp>
+#include <boost/iostreams/filtering_streambuf.hpp>
+#include <boost/iostreams/filtering_stream.hpp>
+#include <boost/iostreams/copy.hpp>
+#include <boost/iostreams/filter/gzip.hpp>
 
 #include "json_spirit_reader.h"
 #include "json_spirit_writer.h"
 #include "json_spirit_utils.h"
+
+#include "deflate.h"
+#include "gzip_container.h"
+#include "zlib_container.h"
+#include "zopfli.h"
 
 #include "mime_types.hpp"
 #include "reply.hpp"
@@ -171,15 +180,56 @@ namespace http {
 				return;
 			}
 
+			bool compress_output = false;
+			ZopfliFormat output_type = ZOPFLI_FORMAT_GZIP;
+			std::string accept_encoding = get_header(req.headers, "Accept-Encoding");
+			if (accept_encoding != "") {
+				LOG_INFO("accept_encoding" << accept_encoding << std::endl);
+				if (boost::starts_with(accept_encoding, "gzip")) {
+					compress_output = true;
+				} else if (boost::starts_with(accept_encoding, "deflate")) {
+					compress_output = true;
+					output_type = ZOPFLI_FORMAT_DEFLATE;
+				} else if (boost::starts_with(accept_encoding, "zlib")){
+					compress_output = true;
+					output_type = ZOPFLI_FORMAT_ZLIB;
+				}
+			}
+
 			rep.status = reply::ok;
 			char buf[512];
 
+			// NKG: Instead of reading chunks into a file, we should be writing them directly to the output stream.
 			while (is.read(buf, sizeof(buf)).gcount() > 0) {
 				rep.content.append(buf, is.gcount());
 			}
 
+			// NKG: I'd rather compress the chunks read from file instead of this current two step process.
+			if (compress_output) {
+				LOG_INFO("compressing" << std::endl);
+				const unsigned char* in = reinterpret_cast<const unsigned char *>(rep.content.c_str());
+				unsigned char* out = 0;
+				size_t insize = rep.content.length();
+				LOG_INFO("old length " << insize << std::endl);
+				size_t outsize = 0;
+				ZopfliOptions options;
+				ZopfliInitOptions(&options);
+				ZopfliCompress(reinterpret_cast<const ZopfliOptions*>(&options), output_type, in, insize, &out, &outsize);
+				LOG_INFO("new length " << outsize << std::endl);
+				rep.content = std::string(reinterpret_cast<const char*>(out), outsize);
+			}
+
 			rep.headers.push_back(header("Content-Length", boost::lexical_cast<std::string>(rep.content.size())));
 			rep.headers.push_back(header("Content-Type", "application/octet-stream"));
+			if (compress_output) {
+				if (output_type == ZOPFLI_FORMAT_GZIP) {
+					rep.headers.push_back(header("Content-Encoding", "gzip"));
+				} else if (output_type == ZOPFLI_FORMAT_ZLIB) {
+					rep.headers.push_back(header("Content-Encoding", "zlib"));
+				} else if (output_type == ZOPFLI_FORMAT_DEFLATE) {
+					rep.headers.push_back(header("Content-Encoding", "deflate"));
+				}
+			}
 		}
 
 		std::string request_handler::get_header(std::vector<header> headers, std::string name) {

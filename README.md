@@ -56,6 +56,7 @@ Some run-time options include:
 1. Support large files (skipped)
 1. Support daemon configuration files
 1. Support static site, mostly for debugging (done)
+1. Support accept-encoding http header
 
 ## Testing
 

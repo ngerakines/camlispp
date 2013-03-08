@@ -9,7 +9,7 @@
 
 namespace blobserver {
 
-enum class HashType : int {
+	enum class HashType : int {
 	    sha1 = 1,
 	    sha256 = 2
 	};

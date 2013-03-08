@@ -7,6 +7,24 @@
 
 namespace blobserver {
 
+	enum class SyncMode : int {
+	    fetch = 1,
+	    fetch_and_send = 2
+	};
+
+	class SyncConfig {
+		public:
+			explicit SyncConfig(std::string host);
+			explicit SyncConfig(std::string host, SyncMode mode);
+
+			std::string host();
+			SyncMode mode();
+
+		private:
+			std::string host_;
+			SyncMode mode_;
+	};
+
 	class Config {
 
 		public:
