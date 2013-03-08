@@ -44,11 +44,11 @@ namespace http {
 				return;
 			}
 
-			LOG_INFO("request_path = " << request_path << std::endl);
-			LOG_INFO("request method = " << req.method << std::endl);
-			LOG_INFO("request headers = "<< std::endl);
+			LOG_INFO(" - request_path = " << request_path << std::endl);
+			LOG_INFO(" - request method = " << req.method << std::endl);
+			LOG_INFO(" - request headers:"<< std::endl);
 			for (auto &h : req.headers) {
-				LOG_INFO(h.name() << "=" << h.value() << std::endl);
+				LOG_INFO("   - " << h.name() << "=" << h.value() << std::endl);
 			}
 
 			// Request path must be absolute and not contain "..".
@@ -144,13 +144,13 @@ namespace http {
 				return;
 			}
 
-			std::string full_path = c_->directory() + foundBlob->filePath();
+			/* std::string full_path = foundBlob->filePath();
 
 			if (!boost::filesystem::exists(full_path)) {
 				LOG_INFO("file not found: " << full_path);
 				rep = reply::stock_reply(reply::not_found);
 				return;
-			}
+			} */
 
 			rep.status = reply::ok;
 			rep.headers.push_back(header("Content-Length", boost::lexical_cast<std::string>(foundBlob->size())));
@@ -328,17 +328,20 @@ namespace http {
 
 		void request_handler::handle_stat(std::string request_path, const request& req, reply& rep) {
 			LOG_INFO("handle_stat called" << std::endl);
-			unsigned foundCamliVersion = request_path.find("camliversion=1");
-
-			if (foundCamliVersion == std::string::npos) {
-				rep = reply::stock_reply(reply::bad_request);
-				return;
-			}
 
 			std::vector<std::string> blobs;
 
 			if (req.method == "GET") {
+				unsigned foundCamliVersion = request_path.find("camliversion=1");
+
+				if (foundCamliVersion == std::string::npos) {
+					rep = reply::stock_reply(reply::bad_request);
+					return;
+				}
+
 				decode_query_string_blobs(&blobs, request_path);
+			} else if (req.method == "POST") {
+				decode_query_string_blobs(&blobs, req.content);
 			}
 
 			json_spirit::Object result;
@@ -364,12 +367,12 @@ namespace http {
 			rep.headers.push_back(header("Content-Type", "application/json"));
 		}
 
-		void request_handler::decode_query_string_blobs(std::vector<std::string>* blobs, std::string request_path) {
-			unsigned found = request_path.find("?");
+		void request_handler::decode_query_string_blobs(std::vector<std::string>* blobs, std::string input) {
+			unsigned found = input.find("?");
 
 			if (found != std::string::npos) {
-				std::string query = request_path.substr(found + 1);
-				std::string input(query);
+				input = input.substr(found + 1);
+			}
 				std::string::iterator begin = input.begin();
 				std::string::iterator end = input.end();
 				keys_and_values<std::string::iterator> p;
@@ -387,7 +390,6 @@ namespace http {
 						}
 					}
 				}
-			}
 		}
 
 		boost::optional<std::string> request_handler::decode_query_string_after(std::string request_path) {

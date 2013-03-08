@@ -1,6 +1,8 @@
 #ifndef _BLOBSERVER_CONFIG_H_
 #define _BLOBSERVER_CONFIG_H_
 
+#define CAMLI_VERSION 1
+
 #cmakedefine ENABLE_DEBUG
 
 #cmakedefine ENABLE_DEBUG_LOAD

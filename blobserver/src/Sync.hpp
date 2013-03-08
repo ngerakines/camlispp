@@ -50,9 +50,14 @@ namespace blobserver {
 			void sync_host(SyncConfig sync_config);
 			boost::optional<SyncEnumeration> parse_sync_enumeration(std::string content);
 			boost::optional<std::string> fetch_url(CURL *curl, std::string url);
+			boost::optional<std::string> fetch_url(CURL *curl, std::string url, std::string postbody);
+			boost::optional<std::string> send_blob(CURL *curl, std::string host, std::string blob_ref);
 			void fetch_blob(CURL *curl, std::string host, std::string blob_ref);
 			std::string build_enumeration_url(std::string host, std::string last);
 			std::string build_blob_url(std::string host, std::string blob_ref);
+			std::string build_stat_url(std::string host);
+			std::string stat_request(std::vector<std::pair<BlobKey, Blob*>> blobs);
+			curl_httppost* build_upload(std::string blob_ref, Blob* blob);
 	};
 
 	int writer(char *data, size_t size, size_t nmemb, std::string *buffer);

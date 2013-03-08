@@ -10,6 +10,7 @@
 #include "json_spirit_writer.h"
 #include "json_spirit_utils.h"
 
+#include "config.h"
 #include "logger.hpp"
 
 namespace blobserver {
@@ -70,8 +71,6 @@ namespace blobserver {
 	}
 
 	void Sync::sync_host(SyncConfig sync_config) {
-		bool get_more = true;
-		std::string last = "";
 		CURL *curl = curl_easy_init();
 		curl_easy_setopt(curl, CURLOPT_USERAGENT, "blobserver/1.0.0");
 		curl_easy_setopt(curl, CURLOPT_NOSIGNAL, 1);
@@ -79,34 +78,137 @@ namespace blobserver {
 		curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1);
 		curl_easy_setopt(curl, CURLOPT_FRESH_CONNECT, 0);
 		curl_easy_setopt(curl, CURLOPT_TIMEOUT, 5);
-		while (get_more) {
-			std::string url = build_enumeration_url(sync_config.host(), last);
-			boost::optional<std::string> content = fetch_url(curl, url);
-			if (content) {
-				boost::optional<SyncEnumeration> sync_enumeration = parse_sync_enumeration(*content);
-				if (sync_enumeration) {
-					for (std::string &blob_ref : (*sync_enumeration).blob_refs()) {
-						Blob *blob = bi_->get(blob_ref);
-						if (blob == NULL) {
-							fetch_blob(curl, sync_config.host(), blob_ref);
+		if (sync_config.get()) {
+			bool get_more = true;
+			std::string last = "";
+			while (get_more) {
+				std::string url = build_enumeration_url(sync_config.host(), last);
+				boost::optional<std::string> content = fetch_url(curl, url);
+				if (content) {
+					boost::optional<SyncEnumeration> sync_enumeration = parse_sync_enumeration(*content);
+					if (sync_enumeration) {
+						for (std::string &blob_ref : (*sync_enumeration).blob_refs()) {
+							Blob *blob = bi_->get(blob_ref);
+							if (blob == NULL) {
+								fetch_blob(curl, sync_config.host(), blob_ref);
+							}
 						}
-					}
 
-					boost::optional<std::string> current_last = (*sync_enumeration).last();
-					if (current_last) {
-						last = *current_last;
+						boost::optional<std::string> current_last = (*sync_enumeration).last();
+						if (current_last) {
+							last = *current_last;
+						} else {
+							get_more = false;
+						}
 					} else {
 						get_more = false;
 					}
 				} else {
 					get_more = false;
 				}
-			} else {
-				get_more = false;
+			}
+		}
+		if (sync_config.send()) {
+			bool check_more = true;
+			boost::optional<std::string> after = boost::optional<std::string>();
+			while (check_more) {
+				std::vector<std::pair<BlobKey, Blob*>> blobs;
+				bi_->paginate(&blobs, after, 501);
+				if (blobs.size() == 501) {
+					auto last = blobs.back();
+					after.reset(last.first.blobref());
+				} else {
+					check_more = false;
+				}
+
+				if (blobs.size() > 0) {
+					std::set<std::string> check_blob_refs;
+					for (auto &pair : blobs) {
+						check_blob_refs.insert(pair.first.blobref());
+					}
+					std::string stat_request_body = stat_request(blobs);
+					std::string url = build_stat_url(sync_config.host());
+					boost::optional<std::string> content = fetch_url(curl, url, stat_request_body);
+					if (content) {
+						boost::optional<SyncEnumeration> sync_enumeration = parse_sync_enumeration(*content);
+						if (sync_enumeration) {
+							for (std::string &blob_ref : (*sync_enumeration).blob_refs()) {
+								check_blob_refs.erase(blob_ref);
+							}
+							LOG_INFO("The following blobs should be sent:" << std::endl);
+							for (auto &blob_ref : check_blob_refs) {
+								LOG_INFO(" - " << blob_ref << std::endl);
+								send_blob(curl, sync_config.host(), blob_ref);
+							}
+						} else {
+							check_more = false;
+						}
+					} else {
+						check_more = false;
+					}
+				}
 			}
 		}
 		curl_easy_cleanup(curl);
 		// delete curl;
+	}
+
+	boost::optional<std::string> Sync::send_blob(CURL *curl, std::string host, std::string blob_ref) {
+		Blob *blob = bi_->get(blob_ref);
+		if (blob == NULL) {
+			return boost::optional<std::string>();
+		}
+
+		std::string url = host + "/upload";
+		LOG_INFO("fetching url " << url << std::endl);
+
+		curl_httppost* post = build_upload(blob_ref, blob);
+
+		std::string buffer;
+		char errorBuffer[CURL_ERROR_SIZE];
+
+		curl_easy_setopt(curl, CURLOPT_ERRORBUFFER, errorBuffer);
+		curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
+		curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, writer);
+		curl_easy_setopt(curl, CURLOPT_WRITEDATA, &buffer);
+		curl_easy_setopt(curl, CURLOPT_HTTPPOST, post);
+
+		CURLcode result = curl_easy_perform(curl);
+
+		curl_formfree(post);
+		curl_easy_reset(curl);
+
+		if (result == CURLE_OK) {
+			return boost::optional<std::string>(buffer);
+		}
+		LOG_ERROR("Curl result was not CURL_OK: " << result << " - " << errorBuffer << std::endl);
+		return boost::optional<std::string>();
+	}
+
+	curl_httppost* Sync::build_upload(std::string blob_ref, Blob* blob) {
+		struct curl_httppost* post = NULL;
+		struct curl_httppost* last = NULL;
+
+		/* Add name/ptrcontent/contenttype section */
+		curl_formadd(&post, &last,
+			// Content-Disposition: form-data; name="sha1-9b03f7aca1ac60d40b5e570c34f79a3e07c918e8"; filename="blob1"
+			CURLFORM_COPYNAME, blob_ref.c_str(),
+			CURLFORM_FILE, blob->filePath().c_str(),
+			CURLFORM_FILENAME, "blob1",
+			CURLFORM_CONTENTTYPE, "application/octet-stream", CURLFORM_END);
+
+		LOG_INFO("creating form post of " << blob_ref << " with " << blob->filePath() << " as 'blob1' and 'application/octet-stream'" << std::endl);
+		return post;
+	}
+
+	std::string Sync::stat_request(std::vector<std::pair<BlobKey, Blob*>> blobs) {
+		std::stringstream ss;
+		ss << "camliversion=" << CAMLI_VERSION << "&";
+		int n = 1;
+		for (auto &pair : blobs) {
+			ss << "&blob" << n++ << "=" << pair.first.blobref();
+		}
+		return ss.str();
 	}
  
 	boost::optional<std::string> Sync::fetch_url(CURL *curl, std::string url) {
@@ -119,6 +221,29 @@ namespace blobserver {
 		curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
 		curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, writer);
 		curl_easy_setopt(curl, CURLOPT_WRITEDATA, &buffer);
+
+		CURLcode result = curl_easy_perform(curl);
+
+		curl_easy_reset(curl);
+
+		if (result == CURLE_OK) {
+			return boost::optional<std::string>(buffer);
+		}
+		LOG_ERROR("Curl result was not CURL_OK: " << result << " - " << errorBuffer << std::endl);
+		return boost::optional<std::string>();
+	}
+
+	boost::optional<std::string> Sync::fetch_url(CURL *curl, std::string url, std::string postbody) {
+		LOG_INFO("fetching url " << url << std::endl);
+
+		std::string buffer;
+		char errorBuffer[CURL_ERROR_SIZE];
+
+		curl_easy_setopt(curl, CURLOPT_ERRORBUFFER, errorBuffer);
+		curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
+		curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, writer);
+		curl_easy_setopt(curl, CURLOPT_WRITEDATA, &buffer);
+		curl_easy_setopt(curl, CURLOPT_POSTFIELDS, postbody.c_str());
 
 		CURLcode result = curl_easy_perform(curl);
 
@@ -160,7 +285,7 @@ namespace blobserver {
 					sync_enumeration.last(value.get_str());
 				}
 
-				if (name == "blobs") {
+				if (name == "blobs" || name == "stat") {
 					const json_spirit::Array& blobs_array = value.get_array();
 					for (unsigned int j = 0; j < blobs_array.size(); ++j) {
 						const json_spirit::Object& blob_obj = blobs_array[j].get_obj();
@@ -179,6 +304,12 @@ namespace blobserver {
 		}
 
 		return boost::optional<SyncEnumeration>();
+	}
+
+	std::string Sync::build_stat_url(std::string host) {
+		std::stringstream ss;
+		ss << host << "/stat";
+		return ss.str();
 	}
 
 	std::string Sync::build_enumeration_url(std::string host, std::string last) {
