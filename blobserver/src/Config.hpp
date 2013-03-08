@@ -7,9 +7,10 @@
 
 namespace blobserver {
 
-	enum class SyncMode : int {
-	    fetch = 1,
-	    fetch_and_send = 2
+	enum SyncMode : int {
+	    get = 1,
+	    send = 2,
+	    get_and_send = 4
 	};
 
 	class SyncConfig {
@@ -19,6 +20,9 @@ namespace blobserver {
 
 			std::string host();
 			SyncMode mode();
+
+			bool get();
+			bool send();
 
 		private:
 			std::string host_;
@@ -35,7 +39,7 @@ namespace blobserver {
 			std::string directory();
 
 			void ip(std::string ip);
-			std::string ip() ;
+			std::string ip();
 
 			std::string port();
 			void port(std::string port);
@@ -49,7 +53,7 @@ namespace blobserver {
 			bool validate();
 			void validate(bool validate);
 
-			std::vector<std::string> sync_servers();
+			std::vector<SyncConfig> sync_servers();
 			void sync_servers(std::vector<std::string> sync_servers);
 
 #if defined ENABLE_STATIC
@@ -65,7 +69,7 @@ namespace blobserver {
 			bool validate_;
 			int sync_delay_;
 
-			std::vector<std::string> sync_servers_;
+			std::vector<SyncConfig> sync_servers_;
 
 #if defined ENABLE_STATIC
 			std::string static_directory_;

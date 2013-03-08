@@ -40,7 +40,7 @@ namespace blobserver {
 		blob_refs_.push_back(blob_ref);
 	}
 
-	Sync::Sync(int wait, std::vector<std::string> hosts, BlobIndex *bi) : wait_(wait), hosts_(hosts), bi_(bi), tick_(0), stopRequested_(false), thread_(boost::bind(&Sync::run, this)) {
+	Sync::Sync(Config *ci, BlobIndex *bi) : ci_(ci), bi_(bi), tick_(0), stopRequested_(false), thread_(boost::bind(&Sync::run, this)) {
 		LOG_INFO("creating sync" << std::endl);
 	}
 
@@ -58,9 +58,9 @@ namespace blobserver {
 		curl_global_init(CURL_GLOBAL_ALL);
 
 		while (!stopRequested_) {
-			if (++tick_ >= wait_) {
-				for (std::string &host : hosts_) {
-					sync_host(host);
+			if (++tick_ >= ci_->sync_delay()) {
+				for (SyncConfig &sync_config : ci_->sync_servers()) {
+					sync_host(sync_config);
 				}
 				tick_ = 0;
 			}
@@ -69,7 +69,7 @@ namespace blobserver {
 		}
 	}
 
-	void Sync::sync_host(std::string host) {
+	void Sync::sync_host(SyncConfig sync_config) {
 		bool get_more = true;
 		std::string last = "";
 		CURL *curl = curl_easy_init();
@@ -80,7 +80,7 @@ namespace blobserver {
 		curl_easy_setopt(curl, CURLOPT_FRESH_CONNECT, 0);
 		curl_easy_setopt(curl, CURLOPT_TIMEOUT, 5);
 		while (get_more) {
-			std::string url = build_enumeration_url(host, last);
+			std::string url = build_enumeration_url(sync_config.host(), last);
 			boost::optional<std::string> content = fetch_url(curl, url);
 			if (content) {
 				boost::optional<SyncEnumeration> sync_enumeration = parse_sync_enumeration(*content);
@@ -88,7 +88,7 @@ namespace blobserver {
 					for (std::string &blob_ref : (*sync_enumeration).blob_refs()) {
 						Blob *blob = bi_->get(blob_ref);
 						if (blob == NULL) {
-							fetch_blob(curl, host, blob_ref);
+							fetch_blob(curl, sync_config.host(), blob_ref);
 						}
 					}
 

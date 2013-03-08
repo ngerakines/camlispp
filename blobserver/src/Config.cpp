@@ -3,7 +3,38 @@
 
 namespace blobserver {
 
+	SyncConfig::SyncConfig(std::string host) : SyncConfig(host, SyncMode::get_and_send) {
+
+	}
+
+	SyncConfig::SyncConfig(std::string host, SyncMode mode) : host_(host), mode_(mode) {
+
+	}
+
+	std::string SyncConfig::host() {
+		return host_;
+	}
+
+	SyncMode SyncConfig::mode() {
+		return mode_;
+	}
+
+	bool SyncConfig::get() {
+		if (mode_ == SyncMode::get || mode_ == SyncMode::get_and_send) {
+			return true;
+		}
+		return false;
+	}
+
+	bool SyncConfig::send() {
+		if (mode_ == SyncMode::send || mode_ == SyncMode::get_and_send) {
+			return true;
+		}
+		return false;
+	}
+
 	Config::Config() : directory_("/tmp/"), ip_("0.0.0.0"), port_("8080"), threads_(2), validate_(true), sync_delay_(60) { }
+
 	Config::~Config() { }
 
 	void Config::directory(std::string directory) {
@@ -54,12 +85,14 @@ namespace blobserver {
 		validate_ = validate;
 	}
 
-	std::vector<std::string> Config::sync_servers() {
+	std::vector<SyncConfig> Config::sync_servers() {
 		return sync_servers_;
 	}
 
 	void Config::sync_servers(std::vector<std::string> sync_servers) {
-		sync_servers_ = sync_servers;
+		for (std::string &sync_server : sync_servers) {
+			sync_servers_.push_back(SyncConfig(sync_server));
+		}
 	}
 
 #if defined ENABLE_STATIC

@@ -32,14 +32,13 @@ namespace blobserver {
 
 	class Sync {
 		public:
-			Sync(int wait, std::vector<std::string> hosts, BlobIndex *bi);
+			Sync(Config *ci, BlobIndex *bi);
 			~Sync();
 
 			void stop();
 
 		private:
-			int wait_;
-			std::vector<std::string> hosts_;
+			Config *ci_;
 			BlobIndex *bi_;
 
 			int tick_;
@@ -48,7 +47,7 @@ namespace blobserver {
 			boost::mutex mutex_;
 
 			void run();
-			void sync_host(std::string host);
+			void sync_host(SyncConfig sync_config);
 			boost::optional<SyncEnumeration> parse_sync_enumeration(std::string content);
 			boost::optional<std::string> fetch_url(CURL *curl, std::string url);
 			void fetch_blob(CURL *curl, std::string host, std::string blob_ref);

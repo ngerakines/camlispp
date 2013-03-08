@@ -165,7 +165,7 @@ int main(int argc, char **argv, char **) {
 	filename += "/blobindex.txt";
 	save_blob_index(bi, filename.c_str());
 
-	blobserver::Sync sync(config.sync_delay(), config.sync_servers(), &bi);
+	blobserver::Sync sync(&config, &bi);
 
 	try {
 		// Initialise the server.
