@@ -15,7 +15,6 @@
 #include <boost/serialization/set.hpp>
 
 #include "config.h"
-#include "city.h"
 
 #if defined ENABLE_DUMP
 #define DUMP_BLOB(x) x
